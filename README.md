@@ -73,9 +73,9 @@ Rscript 04_plot_result.R
 * Merlin Unterfinger
 
 ## References
-* [hereR](https://github.com/munterfinger/hereR): Routing in R using HERE APIs
+* [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs 
 * [geofabrik.de](https://download.geofabrik.de): OpenStreetMap data extracts
-* [bfs](https://www.bfs.admin.ch/): Population data for Switzerland 2018 (STATPOP)
+* [bfs](https://www.bfs.admin.ch/): Population data for Switzerland
 
 ## Licence
 * This repository is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
