@@ -1,13 +1,11 @@
-# Demand responsive transport system planner (drtplanr)
+# Demand responsive transport planner (drtplanr)
 
-Open-source tool for planning and optimizing demand responsive transport systems.
+Open source tool for planning and optimizing demand responsive transport systems.
 
-|![](docs/model_energy.png)|![](docs/station_map.png)|
-|---|---|
+The configured model optimizes the positions of virtual stations in an assumed on-demand service for the community of Jegenstorf in Bern, Switzerland.
 
 ## Getting started
-First the necessary data sets have to be downloaded. Open a shell in the root directory
-of the repository and run the following lines:
+First the necessary data sets (OSM cutout and STATPOP) have to be downloaded. Open a shell in the root directory of the repository and run the following lines:
 
 ``` bash
 # Get STATPOP data set
@@ -23,8 +21,13 @@ unzip -a osm.zip
 rm osm.zip && cd -
 ```
 
-To be able to access the HERE APIs (routing, public transport connections and stations)
-an API key for a HERE project is required. Go to [HERE Developer](https://developer.here.com/), log in or sign up and create an API key (250k request are free): Select a project, click ‘REST: Generate APP’, click ‘Create API Key’ and copy the key. Create a new json file from this template:
+The model requires an API key for a HERE project to access the HERE APIs for routing, public transport connections and stations. Go to [HERE Developer](https://developer.here.com/), log in or sign up and create an API key (250k request are free):
+
+ 1. Select a project
+ 2. click ‘*REST: Generate APP*’
+ 3. click ‘*Create API Key*’ and copy the key. 
+ 
+Create a new file from this template:
 ``` json
 {
    "here":{
@@ -40,7 +43,11 @@ an API key for a HERE project is required. Go to [HERE Developer](https://develo
 Paste the key into the new file and save the file as `"config.json"` to the the root
 directory of the repository.
 
-Done! Now you can run the R scripts in the root repository.
+Done!
+
+## Run the model
+If the steps described above have been successfully completed, you can run the model
+by starting the R scripts in the root repository.
 
 ``` bash
 Rscript 01_prepare_data.R 
@@ -48,6 +55,9 @@ Rscript 02_model_setup.R
 Rscript 03_model.R  
 Rscript 04_plot_result.R 
 ```
+
+|![](docs/model_energy.png)|![](docs/station_map.png)|
+|---|---|
 
 ## Authors
 * Merlin Unterfinger
