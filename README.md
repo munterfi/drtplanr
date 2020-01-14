@@ -49,7 +49,7 @@ directory of the repository.
 Finally install the required R packages:
 
 ``` r
-install.packages(c("data.table", "ggplot2", "hereR", "mapview"))
+Rscript -e 'install.packages(c("data.table", "ggplot2", "hereR", "mapview"), repo="http://cran.rstudio.com/")'
 
 ``` 
 
