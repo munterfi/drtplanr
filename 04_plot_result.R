@@ -8,12 +8,14 @@ s_x <- results$sta_final
 e <- results$energy
 
 # Plotting
+message(Sys.time(), " Plot station map")
 m <-
   mapview(s_0, alpha = 0, cex = 4, col.region = "black", layer.name = "Existing") +
   mapview(s_1, alpha = 0, cex = 2, col.region = "blue", layer.name = "Inital") +
   mapview(s_x, alpha = 0, cex = 4, col.region = "red", layer.name = "Final")
 m
 
+message(Sys.time(), " Plot energy graph")
 p <-
   ggplot(e, aes(x = iteration, y = value)) +
   geom_line() + 
@@ -24,6 +26,7 @@ p <-
 p
 
 # Save
+message(Sys.time(), " Export graphics")
 mapshot(m, file = paste0(getwd(), "/docs/station_map.png"),
         remove_controls = c("zoomControl", "layersControl", "homeButton"))
 ggsave(paste0(getwd(), "/docs/model_energy.png"), plot = p,

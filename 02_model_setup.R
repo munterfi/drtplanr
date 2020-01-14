@@ -4,6 +4,7 @@ library(hereR)
 set_key(jsonlite::read_json("config.json")$here$key)
 
 ## Read data
+message(Sys.time(), " Read pre processed data sets from '/prep'")
 sta <- st_read("prep/station.gpkg", quiet	= TRUE)
 iso <- st_read("prep/isoline.gpkg", quiet	= TRUE)
 tra <- st_read("prep/traffic.gpkg", quiet	= TRUE)
@@ -12,6 +13,7 @@ seg <- st_read("prep/segment.gpkg", quiet	= TRUE)
 pop <- st_read("prep/statpop.gpkg", quiet	= TRUE)
 
 ## Functions
+message(Sys.time(), " Define energy function")
 # Sampling
 sample_exclude <- function(x, size, const) {
   sampling <- TRUE
