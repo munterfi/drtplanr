@@ -28,7 +28,7 @@ The model requires an API key for a HERE project to access the HERE APIs for rou
  2. click ‘*REST: Generate APP*’
  3. click ‘*Create API Key*’ and copy the key. 
  
-Create a new file from this template:
+Create a new file from this template (e.g. `vi config.json`):
 
 ``` json
 {
@@ -43,6 +43,7 @@ Create a new file from this template:
 }
 
 ```
+
 Paste the key into the new file and save the file as `"config.json"` to the the root
 directory of the repository.
 
