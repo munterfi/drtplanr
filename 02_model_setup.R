@@ -4,12 +4,12 @@ library(hereR)
 set_key(jsonlite::read_json("config.json")$here$key)
 
 ## Read data
-sta <- st_read("prep/station.gpkg")
-iso <- st_read("prep/isoline.gpkg")
-tra <- st_read("prep/traffic.gpkg")
-roa <- st_read("prep/road.gpkg")
-seg <- st_read("prep/segment.gpkg")
-pop <- st_read("prep/statpop.gpkg")
+sta <- st_read("prep/station.gpkg", quiet	= TRUE)
+iso <- st_read("prep/isoline.gpkg", quiet	= TRUE)
+tra <- st_read("prep/traffic.gpkg", quiet	= TRUE)
+roa <- st_read("prep/road.gpkg", quiet	= TRUE)
+seg <- st_read("prep/segment.gpkg", quiet	= TRUE)
+pop <- st_read("prep/statpop.gpkg", quiet	= TRUE)
 
 ## Functions
 # Sampling
