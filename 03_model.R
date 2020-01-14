@@ -1,10 +1,9 @@
 source("02_model_setup.R")
 
 ## Params
-# min_dist = 100
-n_stat = 10
-n_seg = nrow(seg)
-n_sim = 200
+n_stat = 10           # Number of stations to plan
+n_seg = nrow(seg)     # Number of "possible" stations
+n_sim = 250           # Number of iterations
 
 # Existing stations
 idx_const <- st_nearest_feature(sta, seg)

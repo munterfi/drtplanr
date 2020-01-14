@@ -1,7 +1,7 @@
 library(sf)
 library(data.table)
 library(hereR)
-set_key("IgV22-xAtzbf4N9wGd96TLJyoNWeB7FzKQuFpHNcA94")
+set_key(jsonlite::read_json("config.json")$here$key)
 
 ## Read data
 sta <- st_read("prep/station.gpkg")

@@ -1,7 +1,7 @@
 library(sf)
 library(data.table)
 library(hereR)
-set_key("IgV22-xAtzbf4N9wGd96TLJyoNWeB7FzKQuFpHNcA94")
+set_key(jsonlite::read_json("config.json")$here$key)
 
 # HERE API: Station, isoline and traffic
 geo <- geocode("Jegenstorf Bahnhof RBS, Bern, Schweiz") %>% st_transform(2056)
@@ -13,7 +13,7 @@ tra <- traffic(iso, product = "flow") %>% st_transform(2056)
 st_write(tra, "prep/traffic.gpkg", delete_dsn = TRUE)
 
 ## Road network
-roa <- st_read("data/switzerland-latest-free/gis_osm_roads_free_1.shp") %>% st_transform(2056)
+roa <- st_read("data/osm/gis_osm_roads_free_1.shp") %>% st_transform(2056)
 roa <- st_intersection(iso, roa)
 st_write(roa, "prep/road.gpkg", delete_dsn = TRUE)
 
@@ -22,13 +22,24 @@ seg <-
   roa[!roa$fclass %in% c("footway", "cycleway", "steps"), ] %>%
   st_union() %>% 
   st_segmentize(units::set_units(50, m)) %>%
-  st_cast("POINT")
-drive_time <- route(seg, sta[2, ], mode = "car")
-seg$carTime <- drive_time$travelTime
-st_write(seg, "prep/segment.gpkg", delete_dsn = TRUE)
+  st_cast("POINT") %>% 
+  st_as_sf()
+
+# Route drive times
+# OLD: drive_time <- route(seg, sta[2, ], mode = "car")
+# 
+# NEW: but still buggy!
+# route_matrix() needs same lengths: replicate sta to the same length as seg
+drive_time <- route_matrix(
+  origin = sta[2, ][rep(seq_len(nrow(sta[2, ])), each = nrow(seg)), ],
+  destination = seg,
+  mode = "car"
+)
+seg$carTime <- drive_time[1:nrow(seg), ]$travelTime
+#st_write(seg, "prep/segment.gpkg", delete_dsn = TRUE)
 
 ## STATPOP 2018
-pop <- fread("data/gd-b-00/STATPOP2018G.csv")
+pop <- fread("data/statpop/STATPOP2018G.csv")
 pop$x <- pop$E_KOORD + 50
 pop$y <- pop$N_KOORD + 50
 pop$n <- pop$B18BTOT

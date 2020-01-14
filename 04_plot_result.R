@@ -3,12 +3,8 @@ library(mapview)
 
 load("result/model_results.RData")
 s_0 <- results$sta_const
-#s_0$id <- seq(1, nrow(s_0))
 s_1 <- results$sta_init
-#s_1$id <- seq(1, nrow(s_1))
 s_x <- results$sta_final
-#s_x$id <- seq(1, nrow(s_x))
-
 e <- results$energy
 
 # Plotting
@@ -18,9 +14,17 @@ m <-
   mapview(s_x, alpha = 0, cex = 4, col.region = "red", layer.name = "Final")
 m
 
-ggplot(e, aes(x = iteration, y = value)) +
+p <-
+  ggplot(e, aes(x = iteration, y = value)) +
   geom_line() + 
   xlab("Iteration") +
-  ylab("Energy: Minutes/Population") +
-  ggtitle("Station optimization") +
+  ylab("Minutes/Population") +
+  ggtitle("Station optimization energy") +
   theme_minimal()
+p
+
+# Save
+mapshot(m, file = paste0(getwd(), "/docs/station_map.png"),
+        remove_controls = c("zoomControl", "layersControl", "homeButton"))
+ggsave(paste0(getwd(), "/docs/model_energy.png"), plot = p,
+       height = 125.984, width = 100, units = c("mm"), dpi = 150)
