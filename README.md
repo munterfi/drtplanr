@@ -19,6 +19,7 @@ mkdir -p data/osm && cd "$_"
 curl https://download.geofabrik.de/europe/switzerland-latest-free.shp.zip -o osm.zip
 unzip -a osm.zip
 rm osm.zip && cd -
+
 ```
 
 The model requires an API key for a HERE project to access the HERE APIs for routing, public transport connections and stations. Go to [HERE Developer](https://developer.here.com/), log in or sign up and create an API key (250k request are free):
@@ -28,6 +29,7 @@ The model requires an API key for a HERE project to access the HERE APIs for rou
  3. click ‘*Create API Key*’ and copy the key. 
  
 Create a new file from this template:
+
 ``` json
 {
    "here":{
@@ -39,19 +41,27 @@ Create a new file from this template:
       "pw":""
    }
 }
+
 ```
 Paste the key into the new file and save the file as `"config.json"` to the the root
 directory of the repository.
+
+Finally install the required R packages:
+
+``` r
+install.packages(c("data.table", "ggplot2", "hereR", "mapview"))
+
+``` 
 
 Done!
 
 ## Run the model
 If the steps described above have been successfully completed, you can run the model
-by starting the R scripts in the root repository.
+by starting the R scripts in the root repository:
 
 ``` bash
 Rscript 01_prepare_data.R 
-Rscript 02_model_setup.R  
+Rscript 02_model_setup.R
 Rscript 03_model.R  
 Rscript 04_plot_result.R 
 ```
