@@ -44,3 +44,4 @@ vignettes/*.pdf
 # Repo
 data
 config.json
+*.js
