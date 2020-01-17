@@ -36,9 +36,9 @@ Create a new file from this template (e.g. `vi config.json`):
       "key":"<YOUR-API-KEY>"
    },
    "proxy":{
-      "url":"",
-      "usr":"",
-      "pw":""
+      "url":"<YOUR-PROXY-URL>",
+      "usr":"<YOUR-PROXY-USERNAME>",
+      "pw":"<YOUR-PROXY-PW>"
    }
 }
 
