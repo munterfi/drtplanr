@@ -20,7 +20,7 @@ sample_exclude <- function(x, size, const) {
   while (sampling) {
     idx <- sample(x, size, replace = FALSE)
     if (any(idx %in% const)) {
-      message("Resample")
+      message("\r  Duplicate stations: Resampling...")
     } else {
       sampling <- FALSE
     }

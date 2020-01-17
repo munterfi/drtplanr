@@ -3,7 +3,7 @@ source("02_model_setup.R")
 ## Params
 n_sta <- 10            # Number of stations to plan
 n_seg <- nrow(seg)     # Number of "possible" stations
-n_sim <- 500           # Number of iterations
+n_sim <- 50           # Number of iterations
 
 # Existing stations
 idx_const <- st_nearest_feature(sta, seg)
@@ -22,15 +22,15 @@ energy[1, ]$value <- sum(calc_energy2(idx, seg, pop))
 
 # Iterate
 message(Sys.time(), " Minimizing the global energy of the model")
-for (i in 2:(n_sim+1)) {
-  e_old <- energy[i-1, ]$value
+for (i in 2:(n_sim + 1)) {
+  e_old <- energy[i - 1, ]$value
   idx_new_pos <- sample(1:n_sta, 1)
   idx_old <- idx[idx_new_pos]
   idx_new <- sample_exclude(1:n_seg, 1, idx)
   idx[idx_new_pos] <- idx_new
   e_new <- sum(calc_energy(idx, seg, pop))
   cat(sprintf("\r  Iteration: %s, e0: %s, e1: %s \r",
-                  i-1, round(e_old, 1), round(e_new, 1)))
+                  i - 1, round(e_old, 1), round(e_new, 1)))
   if (e_old > e_new) {
     energy[i, ]$value <- e_new
   } else {
