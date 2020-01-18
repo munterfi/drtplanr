@@ -36,15 +36,15 @@ Create a new file from this template (e.g. `vi config.json`):
       "key":"<YOUR-API-KEY>"
    },
    "proxy":{
-      "url":"",
-      "usr":"",
-      "pw":""
+      "url":"<YOUR-PROXY-URL>",
+      "usr":"<YOUR-PROXY-USERNAME>",
+      "pw":"<YOUR-PROXY-PW>"
    }
 }
 
 ```
 
-Paste the key into the new file and save the file as `"config.json"` to the the root
+Paste the key into the new file, remove not required entries (e.g. proxy), and save the file as `"config.json"` to the the root
 directory of the repository.
 
 Finally install the required R packages:
