@@ -50,7 +50,8 @@ directory of the repository.
 Finally install the required R packages:
 
 ``` r
-Rscript -e 'install.packages(c("data.table", "ggplot2", "hereR", "mapview"), repo="http://cran.rstudio.com/")'
+Rscript -e 'install.packages(c("data.table", "ggplot2", "devtools", "mapview"), repo="http://cran.rstudio.com/")'
+Rscript -e 'devtools::install_github("munterfinger/hereR", build_vignettes = TRUE)'
 
 ``` 
 

@@ -31,8 +31,7 @@ seg <-
 # Route drive times
 # OLD: drive_time <- route(seg, sta[2, ], mode = "car")
 # 
-# NEW: but still buggy!
-# route_matrix() needs same lengths: replicate sta to the same length as seg
+# NEW: but still buggy, hereR::route_matrix is fixed, please use version > 0.3.0
 message(Sys.time(), " HERE Routing API: Calculate walking times to the station")
 drive_time <- route_matrix(
   origin = sta[2, ][rep(seq_len(nrow(sta[2, ])), each = nrow(seg)), ],
