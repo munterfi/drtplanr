@@ -1,6 +1,6 @@
-# Demand responsive transport planner (drtplanr)
+# Demand-responsive transport planner (drtplanr)
 
-Open source tool for planning and optimizing demand responsive transport systems.
+Tool for planning and optimizing virtual stations in demand-responsive transport systems (name inspired by [stplanr](https://github.com/ropensci/stplanr)).
 
 The configured model optimizes the positions of virtual stations in an assumed on-demand service for the community of Jegenstorf in Bern, Switzerland.
 
@@ -64,7 +64,7 @@ by starting the R scripts in the root repository:
 ``` bash
 Rscript 01_prepare_data.R 
 Rscript 02_model_setup.R
-Rscript 03_model.R  
+Rscript 03_model_run.R  
 Rscript 04_plot_result.R 
 ```
 
@@ -72,7 +72,8 @@ Rscript 04_plot_result.R
 |---|---|
 
 ## Authors
-* Merlin Unterfinger
+* Merlin Unterfinger (implementation) - [munterfinger](https://github.com/munterfinger)
+* Oliver Hofer (ideas and feedback) - [nebucaz](https://github.com/nebucaz)
 
 ## References
 * [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs 
