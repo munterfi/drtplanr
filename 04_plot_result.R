@@ -1,3 +1,13 @@
+# ------------------------------------------------------------------------------
+# drtplanr: 4. Visualize results of the model run
+#
+# File: ~/drtplanr/03_plot_results.R
+# Author: Merlin Unterfinger (info@munterfinger.ch)
+# Date: 2020-03-07
+#
+# GNU General Public License v3.0
+# ------------------------------------------------------------------------------
+
 library(ggplot2)
 library(mapview)
 
