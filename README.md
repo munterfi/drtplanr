@@ -1,6 +1,6 @@
-# Demand responsive transport planner (drtplanr)
+# Demand-responsive transport planner (drtplanr)
 
-Open source tool for planning and optimizing demand responsive transport systems.
+Tool for planning and optimizing virtual stations in demand-responsive transport systems (name inspired by [stplanr](https://github.com/ropensci/stplanr)).
 
 The configured model optimizes the positions of virtual stations in an assumed on-demand service for the community of Jegenstorf in Bern, Switzerland.
 
@@ -36,21 +36,22 @@ Create a new file from this template (e.g. `vi config.json`):
       "key":"<YOUR-API-KEY>"
    },
    "proxy":{
-      "url":"",
-      "usr":"",
-      "pw":""
+      "url":"<YOUR-PROXY-URL>",
+      "usr":"<YOUR-PROXY-USERNAME>",
+      "pw":"<YOUR-PROXY-PW>"
    }
 }
 
 ```
 
-Paste the key into the new file and save the file as `"config.json"` to the the root
+Paste the key into the new file, remove not required entries (e.g. proxy), and save the file as `"config.json"` to the the root
 directory of the repository.
 
 Finally install the required R packages:
 
 ``` r
-Rscript -e 'install.packages(c("data.table", "ggplot2", "hereR", "mapview"), repo="http://cran.rstudio.com/")'
+Rscript -e 'install.packages(c("data.table", "ggplot2", "devtools", "mapview"), repo="http://cran.rstudio.com/")'
+Rscript -e 'devtools::install_github("munterfinger/hereR", build_vignettes = TRUE)'
 
 ``` 
 
@@ -62,16 +63,16 @@ by starting the R scripts in the root repository:
 
 ``` bash
 Rscript 01_prepare_data.R 
-Rscript 02_model_setup.R
-Rscript 03_model.R  
-Rscript 04_plot_result.R 
+Rscript 02_model_run.R  
+Rscript 03_plot_result.R 
 ```
 
 |![](docs/model_energy.png)|![](docs/station_map.png)|
 |---|---|
 
 ## Authors
-* Merlin Unterfinger
+* Merlin Unterfinger (implementation) - [munterfinger](https://github.com/munterfinger)
+* Oliver Hofer (ideas and feedback) - [nebucaz](https://github.com/nebucaz)
 
 ## References
 * [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs 
