@@ -1,8 +1,8 @@
-# Demand-responsive transport planner (drtplanr)
+# Demand-responsive transport planner
 
-Tool for planning and optimizing virtual stations in demand-responsive transport systems (name inspired by [stplanr](https://github.com/ropensci/stplanr)).
+Tool for placing virtual stations in demand-responsive transport systems in villages by defining and minimizing a global energy (`drtplanr`, name is inspired by [stplanr](https://github.com/ropensci/stplanr)). In the model, the station locations are randomly initialized and iteratively optimized on the street network. 
 
-The configured model optimizes the positions of virtual stations in an assumed on-demand service for the community of Jegenstorf in Bern, Switzerland.
+The configured model optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland. 
 
 ## Getting started
 First the necessary data sets (OSM cutout and STATPOP) have to be downloaded. Open a shell in the root directory of the repository and run the following lines:
