@@ -17,17 +17,23 @@ library(mapview)
 ## Load results
 load("result/model_results.RData")
 s_0 <- results$sta_const
+s_0$station <- "Existing"; s_0$size <- 6
 s_1 <- results$sta_init
+s_1$station <- "Initial"; s_1$size <- 3
 s_x <- results$sta_final
+s_x$station <- "Optimized"; s_x$size <- 6
+stations <- rbind(s_0, s_1, s_x)
 e <- results$energy
 
 
 ## Plotting
 tmessage("Plot station map")
 m <-
-  mapview(s_0, alpha = 0, cex = 6, col.region = "black", layer.name = "Existing") +
-  mapview(s_1, alpha = 0, cex = 3, col.region = "blue", layer.name = "Inital") +
-  mapview(s_x, alpha = 0, cex = 6, col.region = "red", layer.name = "Optimized")
+  mapview(
+    stations, alpha = 0, zcol = "station",
+    cex = stations$size, col.regions = c("black", "blue", "red"),
+    layer.name = "Stations"
+  )
 m
 
 tmessage("Plot energy graph")
