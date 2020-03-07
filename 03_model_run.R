@@ -1,9 +1,19 @@
+# ------------------------------------------------------------------------------
+# drtplanr: 3. Minimize the global energy of the model in a model run
+#
+# File: ~/drtplanr/03_model_run.R
+# Author: Merlin Unterfinger (info@munterfinger.ch)
+# Date: 2020-03-07
+#
+# GNU General Public License v3.0
+# ------------------------------------------------------------------------------
+
 source("02_model_setup.R")
 
 ## Params
 n_sta <- 10            # Number of stations to plan
 n_seg <- nrow(seg)     # Number of "possible" stations
-n_sim <- 50           # Number of iterations
+n_sim <- 1000          # Number of iterations
 
 # Existing stations
 idx_const <- st_nearest_feature(sta, seg)
