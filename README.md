@@ -63,9 +63,8 @@ by starting the R scripts in the root repository:
 
 ``` bash
 Rscript 01_prepare_data.R 
-Rscript 02_model_setup.R
-Rscript 03_model_run.R  
-Rscript 04_plot_result.R 
+Rscript 02_model_run.R  
+Rscript 03_plot_result.R 
 ```
 
 |![](docs/model_energy.png)|![](docs/station_map.png)|
