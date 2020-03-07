@@ -1,3 +1,13 @@
+# ------------------------------------------------------------------------------
+# drtplanr: 2. Load data and define energy functions for the model run
+#
+# File: ~/drtplanr/01_model_setup.R
+# Author: Merlin Unterfinger (info@munterfinger.ch)
+# Date: 2020-03-07
+#
+# GNU General Public License v3.0
+# ------------------------------------------------------------------------------
+
 library(sf)
 library(data.table)
 library(hereR)

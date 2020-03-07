@@ -1,3 +1,13 @@
+# ------------------------------------------------------------------------------
+# drtplanr: 1. Prepare the data for the model
+#
+# File: ~/drtplanr/01_prepapre_data.R
+# Author: Merlin Unterfinger (info@munterfinger.ch)
+# Date: 2020-03-07
+#
+# GNU General Public License v3.0
+# ------------------------------------------------------------------------------
+
 library(sf)
 library(data.table)
 library(hereR)
@@ -54,4 +64,3 @@ pop <-
   st_set_crs(2056) %>% 
   st_intersection(iso)
 st_write(pop, "prep/statpop.gpkg", quiet	= TRUE)
-
