@@ -1,4 +1,4 @@
-## Energy fucntions
+## Energy functions
 
 # Global energy: sum(walk/pop)
 e_walk_pop <- function(idx, seg, pop) {
