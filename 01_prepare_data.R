@@ -8,52 +8,19 @@
 # GNU General Public License v3.0
 # ------------------------------------------------------------------------------
 
-## Load drtplanr
-source("R/drtplanr.R")
-read_config()
+library(hereR)
+library(sf)
 
 
 ## HERE API: Station, isoline and traffic
-message(Sys.time(), " Send requests to HERE APIs: Geocode, isoline and stations")
+set_key("<YOUR API KEY>")
 geo <- geocode("Jegenstorf Bahnhof RBS, Bern, Schweiz") %>% st_transform(2056)
 sta <- station(geo, radius = 2000, results = 50) %>% st_transform(2056)
-st_write(sta, "prep/station.gpkg", delete_dsn = TRUE, quiet	= TRUE)
-iso <- isoline(sta[2, ], mode = "car", range = 3*60, traffic = FALSE) %>% st_transform(2056)
-st_write(iso, "prep/isoline.gpkg", delete_dsn = TRUE, quiet = TRUE)
-tra <- flow(iso) %>% st_transform(2056)
-st_write(tra, "prep/traffic.gpkg", delete_dsn = TRUE, quiet = TRUE)
-
-
-## Road network
-tmessage("Read OSM street layer")
-roa <- st_read("data/osm/gis_osm_roads_free_1.shp", quiet = TRUE) %>% st_transform(2056)
-roa <- st_intersection(iso, roa)
-st_write(roa, "prep/road.gpkg", delete_dsn = TRUE, quiet = TRUE)
-
-
-## Split roads in segments
-tmessage("Extract possible station locations from street segments")
-seg <- 
-  roa[!roa$fclass %in% c("footway", "cycleway", "steps"), ] %>%
-  st_union() %>% 
-  st_segmentize(units::set_units(50, m)) %>%
-  st_cast("POINT") %>% 
-  st_as_sf()
-
-# Route drive times
-# hereR::route_matrix is fixed, please use hereR version > 0.3.0
-tmessage("HERE Routing API: Calculate walking times to the station")
-drive_time <- route_matrix(
-  origin = sta[2, ], #[rep(seq_len(nrow(sta[2, ])), each = nrow(seg)), ],
-  destination = seg,
-  mode = "car"
-)
-seg$carTime <- drive_time[1:nrow(seg), ]$travelTime
-st_write(seg, "prep/segment.gpkg", delete_dsn = TRUE, quiet	= TRUE)
+aoi <- isoline(sta[2, ], mode = "car", range = 3.25*60, traffic = FALSE) %>% st_transform(2056)
+st_write(aoi, "data/prep.gpkg", layer = "aoi", quiet = TRUE)
 
 
 ## STATPOP 2018
-tmessage("Read and process STATOP layer")
 pop <- fread("data/statpop/STATPOP2018G.csv")
 pop$x <- pop$E_KOORD + 50
 pop$y <- pop$N_KOORD + 50
@@ -63,5 +30,5 @@ pop <-
   as.data.frame() %>% 
   st_as_sf(coords = c("x", "y")) %>% 
   st_set_crs(2056) %>% 
-  st_intersection(iso)
-st_write(pop, "prep/statpop.gpkg", quiet	= TRUE)
+  st_transform(4326)
+st_write(pop, "data/prep.gpkg", layer = "pop", quiet = TRUE)
