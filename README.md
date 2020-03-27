@@ -22,52 +22,25 @@ rm osm.zip && cd -
 
 ```
 
-The model requires an API key for a HERE project to access the HERE APIs for routing, public transport connections and stations. Go to [HERE Developer](https://developer.here.com/), log in or sign up and create an API key (250k request are free):
-
- 1. Select a project
- 2. click ‘*REST: Generate APP*’
- 3. click ‘*Create API Key*’ and copy the key. 
- 
-Create a new file from this template (e.g. `vi config.json`):
-
-``` json
-{
-   "here":{
-      "key":"<YOUR-API-KEY>"
-   },
-   "proxy":{
-      "url":"<YOUR-PROXY-URL>",
-      "usr":"<YOUR-PROXY-USERNAME>",
-      "pw":"<YOUR-PROXY-PW>"
-   }
-}
-
-```
-
-Paste the key into the new file, remove not required entries (e.g. proxy), and save the file as `"config.json"` to the the root
-directory of the repository.
-
-Finally install the required R packages:
+Then install the required R packages:
 
 ``` r
-Rscript -e 'install.packages(c("data.table", "ggplot2", "devtools", "mapview"), repo="http://cran.rstudio.com/")'
-Rscript -e 'devtools::install_github("munterfinger/hereR", build_vignettes = TRUE)'
-
+Rscript -e 'install.packages(c("data.table", "sf", "dodgr", "osmdata"), repo="http://cran.rstudio.com/")'
+Rscript -e 'install.packages(c("hereR", "ggplot2", "mapview"), repo="http://cran.rstudio.com/")'
 ``` 
 
 Done!
 
 ## Run the model
 If the steps described above have been successfully completed, you can run the model
-by starting the R scripts in the root repository:
+by starting the R scripts in the repository root:
 
 ``` bash
 Rscript 01_prepare_data.R 
 Rscript 02_model_run.R  
-Rscript 03_plot_result.R 
 ```
 
-|![](docs/model_energy.png)|![](docs/station_map.png)|
+|![](docs/Jegenstorf_i5000_energy_plot.png)|![](docs/Jegenstorf_i5000_station_map.png)|
 |---|---|
 
 ## Authors

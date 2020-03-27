@@ -1,11 +1,13 @@
 ## Load all components of the drtplanr
 
-# PKGs
+## PKG
 library(sf)
 library(data.table)
-library(hereR)
 
-# FUNs
-source("R/core.R")
-source("R/model.R")
-source("R/energy.R")
+## SRC
+source("R/drtm.R")
+
+## drtplanr core functions
+tmessage <- function(text) {
+  message(Sys.time(), " ", text)
+}
