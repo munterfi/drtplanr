@@ -64,8 +64,7 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
   
   # Random sample
   n_seg <- nrow(seg)
-  n_sta <- n_vir + length(idx_const)
-  idx <- c(.sample_exclude(1:n_seg, n_sta, idx_const), idx_const)
+  idx <- c(.sample_exclude(1:n_seg, n_vir, idx_const), idx_const)
 
   ## Create model obj
   model <- list(
@@ -79,7 +78,7 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
       value = sum(calc_energy(idx, seg, pop, foot))
     ),
     params = list(
-      n_sta = n_sta,
+      n_sta = n_vir + length(idx_const),
       n_vir = n_vir,
       n_seg = nrow(seg),
       m_seg = m_seg,

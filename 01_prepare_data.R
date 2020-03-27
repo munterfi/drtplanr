@@ -32,3 +32,4 @@ pop <-
   st_set_crs(2056) %>% 
   st_transform(4326)
 st_write(pop, "data/prep.gpkg", layer = "pop", quiet = TRUE)
+

@@ -20,7 +20,7 @@ pop <- st_read("data/prep.gpkg", layer = "pop", quiet	= TRUE)
 m <- drt_drtm(
   model_name = "Jegenstorf",
   aoi = aoi, pop = pop,
-  n_vir = 7, m_seg = 100
+  n_vir = 10, m_seg = 100
 )
 m
 
