@@ -1,29 +1,50 @@
-### Model class definition
+#' Model class definition
+#'
+#' Demand responsive transport model.
+#'
+#' @param model_name character, name of the drtm.
+#' @param aoi sf object, polygon of the Area of Interest (AOI).
+#' @param pop sf object, centroids of a hectaraster population dataset covering the full extent of the \code{aoi} input (column name for population must be 'n').
+#' @param n_vir numeric, number of the virtual stations to place.
+#' @param m_seg numeric, resolution of the road segmentation in meters.
+#' @param calc_energy function, energy calculation function.
+#'
+#' @return
+#' A demand responsive transport model of class \code{drtm}.
+#'
+#' @export
+#'
+#' @examples
+#' m <- drt_drtm(
+#'   model_name = "Jegenstorf",
+#'   aoi = aoi, pop = pop,
+#'   n_vir = 10, m_seg = 100
+#' )
 drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
                      calc_energy = e_walkDrive_pop) {
   aoi <- aoi %>% sf::st_transform(4326)
   pop <- pop %>% sf::st_transform(4326)
-  
+
   # Get OSM data
   tmessage("Get data from OSM: Streets 'roa', bus stops and rail stations 'sta'")
   bb <- aoi %>% drt_osm_bb()
   roa <- dodgr::dodgr_streetnet(bbox = bb)
-  
+
   # Stations
   sta_rail <-
     osmdata::opq(bbox = bb) %>%
     osmdata::add_osm_feature(key = "railway", value = "station") %>%
-    osmdata::osmdata_sf() %>% 
+    osmdata::osmdata_sf() %>%
     .$osm_points
   sta_rail$type = "rail"
-  
+
   sta_bus <-
     osmdata::opq(bbox = bb) %>%
     osmdata::add_osm_feature(key = "highway", value = "bus_stop") %>%
-    osmdata::osmdata_sf() %>% 
+    osmdata::osmdata_sf() %>%
     .$osm_points
   sta_bus$type = "bus"
-  
+
   sta <- rbind(
     sta_rail[, c("type", "geometry")],
     sta_bus[, c("type", "geometry")]
@@ -33,35 +54,35 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
   tmessage("Create routing graphs for 'foot' and 'mcar'")
   foot <- dodgr::weight_streetnet(roa, wt_profile = "foot")
   mcar <- dodgr::weight_streetnet(roa, wt_profile = "motorcar")
-  
+
   # Mask layers to AOI
   tmessage("Mask layers 'roa', 'pop' and 'sta' by 'aoi'")
   roa <- roa[!roa$highway %in% c("footway", "path", "cycleway", "steps", "track", "service"), ]
   roa <- drt_mask(roa, aoi)
   pop <- drt_mask(pop, aoi)
   sta <- drt_mask(sta, aoi)
-  
+
   # Split roads in segments
   tmessage("Extract possible station locations 'seg' from street segments")
   seg <- drt_roa_seg(roa, m_seg = 100)
-  
+
   # Route driving times from all segments to the rail stations
   tmessage("Route driving times of 'seg' to the rail stations")
   car_time <- drt_route_matrix(
     orig = sta[sta$type == "rail", ],
     dest = seg,
     graph = mcar
-  ) %>% 
+  ) %>%
     .[, .(travelTime = min(travelTime)), by = destIndex]
   seg$carTime <- car_time$travelTime
   seg <- seg[!is.na(seg$carTime), ]
-  
+
   # Existing stations
   tmessage("Map stations 'sta' to segments 'seg' and set as constant")
   idx_const <- suppressMessages(
     sf::st_nearest_feature(sta, seg)
   )
-  
+
   # Random sample
   n_seg <- nrow(seg)
   idx <- c(.sample_exclude(1:n_seg, n_vir, idx_const), idx_const)
@@ -99,6 +120,14 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
   model
 }
 
+#' Print
+#'
+#' @param obj
+#'
+#' @return
+#' @export
+#'
+#' @examples
 print.drtm <- function(obj) {
   cat(
     sprintf(
@@ -115,6 +144,14 @@ print.drtm <- function(obj) {
 ## OSM Layers
 drt_osm_bb = function(x, ...) UseMethod("drt_osm_bb")
 
+#' Title
+#'
+#' @param aoi
+#'
+#' @return
+#' @export
+#'
+#' @examples
 drt_osm_bb.sf <- function(aoi) {
   sf_bb <- aoi %>% sf::st_transform(4326) %>% sf::st_bbox()
   osm_bb <- matrix(sf_bb, 2)
@@ -127,6 +164,15 @@ drt_osm_bb.sf <- function(aoi) {
 ## Spatial
 drt_mask = function(x, ...) UseMethod("drt_mask")
 
+#' Mask
+#'
+#' @param layer
+#' @param aoi
+#'
+#' @return
+#' @export
+#'
+#' @examples
 drt_mask.sf <- function(layer, aoi) {
   suppressMessages(
     suppressWarnings(
@@ -137,12 +183,21 @@ drt_mask.sf <- function(layer, aoi) {
 
 drt_roa_seg = function(x, ...) UseMethod("drt_roa_seg")
 
+#' Segmentize roads
+#'
+#' @param roa
+#' @param m_seg
+#'
+#' @return
+#' @export
+#'
+#' @examples
 drt_roa_seg.sf <- function(roa, m_seg) {
-  seg <- 
-    roa %>% 
-    sf::st_union() %>% 
+  seg <-
+    roa %>%
+    sf::st_union() %>%
     sf::st_segmentize(units::set_units(m_seg, m)) %>%
-    sf::st_cast("POINT") %>% 
+    sf::st_cast("POINT") %>%
     sf::st_as_sf()
   colnames(seg) <- c("geometry")
   sf::st_geometry(seg) <- "geometry"
@@ -151,7 +206,16 @@ drt_roa_seg.sf <- function(roa, m_seg) {
 }
 
 
-### Routing
+#' Routing
+#'
+#' @param orig
+#' @param dest
+#' @param graph
+#'
+#' @return
+#' @export
+#'
+#' @examples
 drt_route_matrix <- function(orig, dest, graph) {
   m <- dodgr::dodgr_times(
     graph = graph,
@@ -182,17 +246,38 @@ drt_route_matrix <- function(orig, dest, graph) {
 
 
 ### Energy functions
-# Global energy: sum(walk/pop)
-e_walk_pop <- function(idx, seg, pop, router) {
+
+#' Global energy: sum(walk/pop)
+#'
+#' @param idx
+#' @param seg
+#' @param pop
+#' @param graph
+#'
+#' @return
+#' @export
+#'
+#' @examples
+e_walk_pop <- function(idx, seg, pop, graph) {
   # Route
-  rts <- drt_route_matrix(seg[idx, ], pop, mode = "pedestrian", router = router)
+  rts <- drt_route_matrix(seg[idx, ], pop, graph = graph)
   # Get nearest station
   nn <- rts[, .SD[which.min(travelTime)], by = list(destIndex)]
   nn$pop <- pop[nn$destIndex, ]$n
   return(nn[, sum(travelTime/pop), by = list(origIndex)])
 }
 
-# Global energy: sum((walk+5*drive)/pop)
+#' Global energy: sum((walk+drive)/pop)
+#'
+#' @param idx
+#' @param seg
+#' @param pop
+#' @param graph
+#'
+#' @return
+#' @export
+#'
+#' @examples
 e_walkDrive_pop <- function(idx, seg, pop, graph) {
   # Route
   rts <- drt_route_matrix(seg[idx, ], pop, graph = graph)
@@ -204,9 +289,29 @@ e_walkDrive_pop <- function(idx, seg, pop, graph) {
 }
 
 
-### Iterate
-drt_iterate = function(x, ...) UseMethod("drt_iterate")
+#' Iterate
+#'
+#' Minimize the gloabal energy of a drtm model.
+#'
+#' @param obj, drtm, a drtm model.
+#' @param n_iter numeric, number of iterations.
+#'
+#' @return
+#' A new \code{drtm} object with \code{n_iter} times more iterations.
+#' @export
+#'
+#' @examples
+#' m <- drt_drtm(
+#' model_name = "Jegenstorf",
+#' aoi = aoi, pop = pop,
+#' n_vir = 10, m_seg = 100
+#' )
+#'
+#' drt_iterate(m, 10)
+drt_iterate = function(obj, ...) UseMethod("drt_iterate")
 
+#' @rdname drt_iterate
+#' @export
 drt_iterate.drtm <- function(obj, n_iter) {
   tmessage("Minimize the global energy of the model")
   # Expand energy dt
@@ -242,9 +347,19 @@ drt_iterate.drtm <- function(obj, n_iter) {
 }
 
 
-## Export
+#' Export model
+#'
+#' @param obj drtm, a drtm model.
+#' @param path character, path to file.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 drt_export = function(x, ...) UseMethod("drt_export")
 
+#' @rdname drt_export
+#' @export
 drt_export.drtm <- function(obj, path) {
   file_path <- file.path(path, paste0(obj$id, "_i", obj$i, ".RData"))
   tmessage("Export drtm to '%s'" %>% sprintf(file_path))
@@ -252,9 +367,18 @@ drt_export.drtm <- function(obj, path) {
 }
 
 
-## Import
+#' Import model
+#'
+#' @param file_name character, path to file.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 drt_import = function(x, ...) UseMethod("drt_import")
 
+#' @rdname drt_import
+#' @export
 drt_import.character <- function(file_name) {
   drt <- .load_RData(file_name)
   drt
@@ -266,14 +390,23 @@ drt_import.character <- function(file_name) {
 }
 
 
-### Graphics
+#' Plot energy curve
+#'
+#' @param obj drtm, a drtm model.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 drt_plot = function(x, ...) UseMethod("drt_plot")
 
+#' @rdname drt_plot
+#' @export
 drt_plot <- function(obj) {
   tmessage("Print energy plot")
   p <-
     ggplot2::ggplot(obj$e, ggplot2::aes(x = iteration, y = value)) +
-    ggplot2::geom_line() + 
+    ggplot2::geom_line() +
     ggplot2::xlab("Iteration") +
     ggplot2::ylab("Energy") +
     ggplot2::ggtitle("drtm: '%s', iterations: %s" %>% sprintf(obj$id, obj$i)) +
@@ -281,8 +414,18 @@ drt_plot <- function(obj) {
   p
 }
 
+#' Plot station map
+#'
+#' @param obj drtm, a drtm model.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 drt_map = function(x, ...) UseMethod("drt_map")
 
+#' @rdname drt_map
+#' @export
 drt_map.drtm <- function(obj) {
   tmessage("Print station map")
   const <- obj$layer$seg[obj$idx_const, ]
@@ -314,9 +457,19 @@ drt_map.drtm <- function(obj) {
   m
 }
 
-
+#' Save graphics of model
+#'
+#' @param obj drtm, a drtm model.
+#' @param path character, path to file.
+#'
+#' @return
+#' @export
+#'
+#' @examples
 drt_save_graphics = function(x, ...) UseMethod("drt_save_graphics")
 
+#' @rdname drt_save_graphics
+#' @export
 drt_save_graphics.drtm <- function(obj, path) {
   p <- drt_plot(obj)
   m <- drt_map(obj)

@@ -1,0 +1,84 @@
+---
+title: "run-model"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{run-model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(mapview)
+mapviewOptions(
+  vector.palette = colorRampPalette(
+    c("#000004FF", "#420A68FF", "#932667FF", "#DD513AFF", "#FCA50AFF", "#FCFFA4FF")
+  )
+)
+```
+
+## Area of Interest
+```{r out.width='100%'}
+m <-
+  mapview(aoi, alpha.region = 0, layer.name = "AOI", homebutton = FALSE) +
+  mapview(pop, zcol = "n", alpha = 0, layer.name = "Population", homebutton = FALSE)
+m
+```
+
+## Initialize drtm model
+```{r }
+library(drtplanr)
+
+# Create model
+m <- drt_drtm(
+  model_name = "Jegenstorf",
+  aoi = aoi, pop = pop,
+  n_vir = 10, m_seg = 100
+)
+m
+```
+
+## Minimze the energy of the model
+```{r }
+m1 <- drt_iterate(m, 100)
+m1
+```
+
+## Plotting
+### Energy curve
+```{r out.width='100%'}
+drt_plot(m1)
+```
+
+### Station map
+```{r out.width='100%'}
+drt_map(m1)
+```
+
+## Iterate again
+
+```{r out.width='100%'}
+m2 <- drt_iterate(m1, 900)
+m2
+```
+
+```{r out.width='100%'}
+drt_plot(m2)
+```
+
+```{r out.width='100%'}
+drt_map(m2)
+```
+
+## Export and import
+```{r eval=FALSE, out.width='100%'}
+drt_export(m2, path = "docs/results")
+
+drt_import("docs/results")
+
+drt_save_graphics(m2, path = paste0(getwd(), "/docs"))
+```

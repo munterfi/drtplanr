@@ -1,13 +1,24 @@
-# ------------------------------------------------------------------------------
-# drtplanr: Prepare the data for the model
-#
-# File: ~/drtplanr/01_prepapre_data.R
-# Author: Merlin Unterfinger (info@munterfinger.ch)
-# Date: 2020-03-07
-#
-# GNU General Public License v3.0
-# ------------------------------------------------------------------------------
+---
+title: "prepare-data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{prepare-data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(drtplanr)
+```
+
+```{r eval=FALSE}
 library(hereR)
 library(sf)
 
@@ -32,4 +43,4 @@ pop <-
   st_set_crs(2056) %>% 
   st_transform(4326)
 st_write(pop, "data/prep.gpkg", layer = "pop", quiet = TRUE)
-
+```

@@ -46,3 +46,5 @@ data
 config.json
 *.js
 *.html
+.Rproj.user
+inst/doc
