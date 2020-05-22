@@ -2,7 +2,7 @@
 % Please edit documentation in R/drtm.R
 \name{e_walkDrive_pop}
 \alias{e_walkDrive_pop}
-\title{Global energy: sum((walk+5*drive)/pop)}
+\title{Global energy: sum((walk+drive)/pop)}
 \usage{
 e_walkDrive_pop(idx, seg, pop, graph)
 }
@@ -13,5 +13,5 @@ e_walkDrive_pop(idx, seg, pop, graph)
 
 }
 \description{
-Global energy: sum((walk+5*drive)/pop)
+Global energy: sum((walk+drive)/pop)
 }
