@@ -2,19 +2,24 @@
 % Please edit documentation in R/drtm.R
 \name{drt_map}
 \alias{drt_map}
-\alias{drt_map.drtm}
 \title{Plot station map}
 \usage{
-drt_map(x, ...)
-
-\method{drt_map}{drtm}(obj)
+drt_map(obj)
 }
 \arguments{
 \item{obj}{drtm, a drtm model.}
 }
 \value{
-
+A mapview map object, containing the energy curve.
 }
 \description{
 Plot station map
+}
+\examples{
+# Example model
+m <- drt_import(
+  system.file("Jegenstorf_i0.RData", package="drtplanr")
+)
+
+drt_map(m)
 }

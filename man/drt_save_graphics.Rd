@@ -2,12 +2,9 @@
 % Please edit documentation in R/drtm.R
 \name{drt_save_graphics}
 \alias{drt_save_graphics}
-\alias{drt_save_graphics.drtm}
 \title{Save graphics of model}
 \usage{
-drt_save_graphics(x, ...)
-
-\method{drt_save_graphics}{drtm}(obj, path)
+drt_save_graphics(obj, path)
 }
 \arguments{
 \item{obj}{drtm, a drtm model.}
@@ -15,8 +12,17 @@ drt_save_graphics(x, ...)
 \item{path}{character, path to file.}
 }
 \value{
-
+None.
 }
 \description{
 Save graphics of model
+}
+\examples{
+#' # Example model
+m <- drt_import(
+  system.file("Jegenstorf_i0.RData", package="drtplanr")
+)
+
+# Save to temp dir
+drt_save_graphics(m, path = tempdir())
 }

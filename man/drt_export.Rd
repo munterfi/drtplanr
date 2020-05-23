@@ -2,21 +2,27 @@
 % Please edit documentation in R/drtm.R
 \name{drt_export}
 \alias{drt_export}
-\alias{drt_export.drtm}
-\title{Export model}
+\title{Export drtm}
 \usage{
-drt_export(x, ...)
-
-\method{drt_export}{drtm}(obj, path)
+drt_export(obj, path)
 }
 \arguments{
-\item{obj}{drtm, a drtm model.}
+\item{obj}{drtm, a drtm model of the drtplanr.}
 
 \item{path}{character, path to file.}
 }
 \value{
-
+None.
 }
 \description{
-Export model
+Export drtm
+}
+\examples{
+# Example model
+m <- drt_import(
+  system.file("Jegenstorf_i0.RData", package="drtplanr")
+)
+
+# Export to temporary dir
+drt_export(m, path = tempdir())
 }

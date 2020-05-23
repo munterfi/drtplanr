@@ -1,25 +1,38 @@
-#' Model class definition
+#' Demand responsive transport model class.
 #'
-#' Demand responsive transport model.
+#' Creates a demand responsive transport representation of in an Area of
+#' Interest (AOI). The constructor takes a polygon (aoi), point population
+#' values (pop) and the number of virtual stations to plan as input. Then it
+#' retrieves the street network in the area of interest from OSM. Based on the
+#' OSM data a routing graph for walking and driving is created.
 #'
 #' @param model_name character, name of the drtm.
-#' @param aoi sf object, polygon of the Area of Interest (AOI).
-#' @param pop sf object, centroids of a hectaraster population dataset covering the full extent of the \code{aoi} input (column name for population must be 'n').
+#' @param aoi sf, polygon of the Area of Interest (AOI).
+#' @param pop sf, centroids of a hectaraster population dataset covering the full extent of the 'aoi' input (column name for population must be 'n').
 #' @param n_vir numeric, number of the virtual stations to place.
 #' @param m_seg numeric, resolution of the road segmentation in meters.
 #' @param calc_energy function, energy calculation function.
 #'
 #' @return
-#' A demand responsive transport model of class \code{drtm}.
+#' A demand responsive transport model of class 'drtm'.
 #'
 #' @export
 #'
 #' @examples
+#' # Example data
+#' aoi <-
+#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+#'
+#' pop <-
+#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+#'
+#' # Create model
 #' m <- drt_drtm(
 #'   model_name = "Jegenstorf",
 #'   aoi = aoi, pop = pop,
 #'   n_vir = 10, m_seg = 100
 #' )
+#' m
 drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
                      calc_energy = e_walkDrive_pop) {
   aoi <- aoi %>% sf::st_transform(4326)
@@ -122,13 +135,22 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
 
 #' Print
 #'
-#' @param obj
+#' @param x drtplanr object, print information about package classes.
+#' @param ... ...
 #'
 #' @return
+#' None.
+#'
 #' @export
 #'
 #' @examples
-print.drtm <- function(obj) {
+#' # Example model
+#' m <- drt_import(
+#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#' )
+#' print(m)
+print.drtm <- function(x, ...) {
+  obj <- x
   cat(
     sprintf(
       "Demand-responsive transport model '%s'\nIteration: %s\nInitial energy: %s\nCurrent energy: %s\nExisting stations: %s\nVirtual stations: %s",
@@ -142,16 +164,24 @@ print.drtm <- function(obj) {
 
 
 ## OSM Layers
-drt_osm_bb = function(x, ...) UseMethod("drt_osm_bb")
 
-#' Title
+#' Get the box in the osmdata format.
 #'
-#' @param aoi
+#' @param aoi, spatial object, object to retreive the bounding box from.
 #'
 #' @return
+#' A matrix conaining the bbox in osmdata format.
 #' @export
 #'
 #' @examples
+#' # Example data
+#' aoi <-
+#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+#'
+#' drt_osm_bb(aoi)
+drt_osm_bb = function(aoi) UseMethod("drt_osm_bb")
+
+#' @export
 drt_osm_bb.sf <- function(aoi) {
   sf_bb <- aoi %>% sf::st_transform(4326) %>% sf::st_bbox()
   osm_bb <- matrix(sf_bb, 2)
@@ -162,17 +192,29 @@ drt_osm_bb.sf <- function(aoi) {
 
 
 ## Spatial
-drt_mask = function(x, ...) UseMethod("drt_mask")
 
-#' Mask
+#' Mask a spatial layer by a polygon
 #'
-#' @param layer
-#' @param aoi
+#' @param layer spatial object to crop by the polygon.
+#' @param aoi spatial object, polygon to mask to.
 #'
 #' @return
+#' A masked sf.
+#'
 #' @export
 #'
 #' @examples
+#' # Example data
+#' aoi <-
+#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+#'
+#' pop <-
+#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+#'
+#' drt_mask(pop, aoi)
+drt_mask = function(layer, aoi) UseMethod("drt_mask")
+
+#' @export
 drt_mask.sf <- function(layer, aoi) {
   suppressMessages(
     suppressWarnings(
@@ -181,17 +223,20 @@ drt_mask.sf <- function(layer, aoi) {
   )
 }
 
-drt_roa_seg = function(x, ...) UseMethod("drt_roa_seg")
-
 #' Segmentize roads
 #'
-#' @param roa
-#' @param m_seg
+#' @param roa spatial object, contains the roads.
+#' @param m_seg numeric, resoution for the length of the segemnts in meters.
 #'
 #' @return
+#' A sf object containing the segementized road network points.
 #' @export
 #'
 #' @examples
+#' print("tbd.")
+drt_roa_seg = function(roa, m_seg) UseMethod("drt_roa_seg")
+
+#' @export
 drt_roa_seg.sf <- function(roa, m_seg) {
   seg <-
     roa %>%
@@ -208,14 +253,16 @@ drt_roa_seg.sf <- function(roa, m_seg) {
 
 #' Routing
 #'
-#' @param orig
-#' @param dest
-#' @param graph
+#' @param orig sf, points of the origins.
+#' @param dest sf, points of the destination.
+#' @param graph dodgr routing graph, graph to route between the points.
 #'
 #' @return
+#' A data.table containing the summaries of the routed connections.
 #' @export
 #'
 #' @examples
+#' print("tbd.")
 drt_route_matrix <- function(orig, dest, graph) {
   m <- dodgr::dodgr_times(
     graph = graph,
@@ -249,15 +296,18 @@ drt_route_matrix <- function(orig, dest, graph) {
 
 #' Global energy: sum(walk/pop)
 #'
-#' @param idx
-#' @param seg
-#' @param pop
-#' @param graph
+#' @param idx numeric, indices of candidates ins 'seg'.
+#' @param seg sf, road segments point locations.
+#' @param pop sf, population point data.
+#' @param graph dodgr routing graph, graph to route between the points.
 #'
 #' @return
+#' A data.table object containing the energies.
+#'
 #' @export
 #'
 #' @examples
+#' print("tbd.")
 e_walk_pop <- function(idx, seg, pop, graph) {
   # Route
   rts <- drt_route_matrix(seg[idx, ], pop, graph = graph)
@@ -269,15 +319,18 @@ e_walk_pop <- function(idx, seg, pop, graph) {
 
 #' Global energy: sum((walk+drive)/pop)
 #'
-#' @param idx
-#' @param seg
-#' @param pop
-#' @param graph
+#' @param idx numeric, indices of candidates ins seg.
+#' @param seg sf, road segments point locations.
+#' @param pop sf, population point data.
+#' @param graph dodgr routing graph, graph to route between the points.
 #'
 #' @return
+#' A data.table object containing the energies.
+#'
 #' @export
 #'
 #' @examples
+#' print("tbd.")
 e_walkDrive_pop <- function(idx, seg, pop, graph) {
   # Route
   rts <- drt_route_matrix(seg[idx, ], pop, graph = graph)
@@ -289,6 +342,8 @@ e_walkDrive_pop <- function(idx, seg, pop, graph) {
 }
 
 
+## Interact with drtm class
+
 #' Iterate
 #'
 #' Minimize the gloabal energy of a drtm model.
@@ -297,20 +352,18 @@ e_walkDrive_pop <- function(idx, seg, pop, graph) {
 #' @param n_iter numeric, number of iterations.
 #'
 #' @return
-#' A new \code{drtm} object with \code{n_iter} times more iterations.
+#' A new drtm with 'n_iter' times more iterations.
 #' @export
 #'
 #' @examples
-#' m <- drt_drtm(
-#' model_name = "Jegenstorf",
-#' aoi = aoi, pop = pop,
-#' n_vir = 10, m_seg = 100
+#' # Example model
+#' m <- drt_import(
+#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
 #' )
 #'
 #' drt_iterate(m, 10)
-drt_iterate = function(obj, ...) UseMethod("drt_iterate")
+drt_iterate = function(obj, n_iter) UseMethod("drt_iterate")
 
-#' @rdname drt_iterate
 #' @export
 drt_iterate.drtm <- function(obj, n_iter) {
   tmessage("Minimize the global energy of the model")
@@ -347,18 +400,26 @@ drt_iterate.drtm <- function(obj, n_iter) {
 }
 
 
-#' Export model
+#' Export drtm
 #'
-#' @param obj drtm, a drtm model.
+#' @param obj drtm, a drtm model of the drtplanr.
 #' @param path character, path to file.
 #'
 #' @return
+#' None.
+#'
 #' @export
 #'
 #' @examples
-drt_export = function(x, ...) UseMethod("drt_export")
+#' # Example model
+#' m <- drt_import(
+#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#' )
+#'
+#' # Export to temporary dir
+#' drt_export(m, path = tempdir())
+drt_export = function(obj, path) UseMethod("drt_export")
 
-#' @rdname drt_export
 #' @export
 drt_export.drtm <- function(obj, path) {
   file_path <- file.path(path, paste0(obj$id, "_i", obj$i, ".RData"))
@@ -367,17 +428,22 @@ drt_export.drtm <- function(obj, path) {
 }
 
 
-#' Import model
+#' Import drtm
 #'
 #' @param file_name character, path to file.
 #'
 #' @return
+#' A drtm model.
+#'
 #' @export
 #'
 #' @examples
-drt_import = function(x, ...) UseMethod("drt_import")
+#' # Example model
+#' m <- drt_import(
+#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#' )
+drt_import = function(file_name) UseMethod("drt_import")
 
-#' @rdname drt_import
 #' @export
 drt_import.character <- function(file_name) {
   drt <- .load_RData(file_name)
@@ -395,12 +461,22 @@ drt_import.character <- function(file_name) {
 #' @param obj drtm, a drtm model.
 #'
 #' @return
-#' @export
+#' A ggplot2 plor object, containing the energy curve.
 #'
+#' @export
 #' @examples
-drt_plot = function(x, ...) UseMethod("drt_plot")
+#' # Example model
+#' m <- drt_import(
+#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#' )
+#'
+#' # Iterate
+#' m <- drt_iterate(m, 10)
+#'
+#' # Plot
+#' drt_plot(m)
+drt_plot = function(obj) UseMethod("drt_plot")
 
-#' @rdname drt_plot
 #' @export
 drt_plot <- function(obj) {
   tmessage("Print energy plot")
@@ -419,12 +495,18 @@ drt_plot <- function(obj) {
 #' @param obj drtm, a drtm model.
 #'
 #' @return
+#' A mapview map object, containing the energy curve.
 #' @export
 #'
 #' @examples
-drt_map = function(x, ...) UseMethod("drt_map")
+#' # Example model
+#' m <- drt_import(
+#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#' )
+#'
+#' drt_map(m)
+drt_map = function(obj) UseMethod("drt_map")
 
-#' @rdname drt_map
 #' @export
 drt_map.drtm <- function(obj) {
   tmessage("Print station map")
@@ -463,12 +545,20 @@ drt_map.drtm <- function(obj) {
 #' @param path character, path to file.
 #'
 #' @return
+#' None.
+#'
 #' @export
 #'
 #' @examples
-drt_save_graphics = function(x, ...) UseMethod("drt_save_graphics")
+#' #' # Example model
+#' m <- drt_import(
+#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#' )
+#'
+#' # Save to temp dir
+#' drt_save_graphics(m, path = tempdir())
+drt_save_graphics = function(obj, path) UseMethod("drt_save_graphics")
 
-#' @rdname drt_save_graphics
 #' @export
 drt_save_graphics.drtm <- function(obj, path) {
   p <- drt_plot(obj)

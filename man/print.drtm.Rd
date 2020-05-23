@@ -4,14 +4,23 @@
 \alias{print.drtm}
 \title{Print}
 \usage{
-\method{print}{drtm}(obj)
+\method{print}{drtm}(x, ...)
 }
 \arguments{
-\item{obj}{}
+\item{x}{drtplanr object, print information about package classes.}
+
+\item{...}{...}
 }
 \value{
-
+None.
 }
 \description{
 Print
+}
+\examples{
+# Example model
+m <- drt_import(
+  system.file("Jegenstorf_i0.RData", package="drtplanr")
+)
+print(m)
 }

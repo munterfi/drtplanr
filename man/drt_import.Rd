@@ -2,19 +2,22 @@
 % Please edit documentation in R/drtm.R
 \name{drt_import}
 \alias{drt_import}
-\alias{drt_import.character}
-\title{Import model}
+\title{Import drtm}
 \usage{
-drt_import(x, ...)
-
-\method{drt_import}{character}(file_name)
+drt_import(file_name)
 }
 \arguments{
 \item{file_name}{character, path to file.}
 }
 \value{
-
+A drtm model.
 }
 \description{
-Import model
+Import drtm
+}
+\examples{
+# Example model
+m <- drt_import(
+  system.file("Jegenstorf_i0.RData", package="drtplanr")
+)
 }

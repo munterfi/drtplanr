@@ -7,11 +7,18 @@
 drt_route_matrix(orig, dest, graph)
 }
 \arguments{
-\item{graph}{}
+\item{orig}{sf, points of the origins.}
+
+\item{dest}{sf, points of the destination.}
+
+\item{graph}{dodgr routing graph, graph to route between the points.}
 }
 \value{
-
+A data.table containing the summaries of the routed connections.
 }
 \description{
 Routing
+}
+\examples{
+print("tbd.")
 }

@@ -7,11 +7,20 @@
 e_walkDrive_pop(idx, seg, pop, graph)
 }
 \arguments{
-\item{graph}{}
+\item{idx}{numeric, indices of candidates ins seg.}
+
+\item{seg}{sf, road segments point locations.}
+
+\item{pop}{sf, population point data.}
+
+\item{graph}{dodgr routing graph, graph to route between the points.}
 }
 \value{
-
+A data.table object containing the energies.
 }
 \description{
 Global energy: sum((walk+drive)/pop)
+}
+\examples{
+print("tbd.")
 }

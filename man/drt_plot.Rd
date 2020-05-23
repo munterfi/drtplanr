@@ -5,15 +5,25 @@
 \title{Plot energy curve}
 \usage{
 drt_plot(obj)
-
-drt_plot(obj)
 }
 \arguments{
 \item{obj}{drtm, a drtm model.}
 }
 \value{
-
+A ggplot2 plor object, containing the energy curve.
 }
 \description{
 Plot energy curve
+}
+\examples{
+# Example model
+m <- drt_import(
+  system.file("Jegenstorf_i0.RData", package="drtplanr")
+)
+
+# Iterate
+m <- drt_iterate(m, 10)
+
+# Plot
+drt_plot(m)
 }

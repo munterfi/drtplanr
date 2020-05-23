@@ -5,46 +5,53 @@
 
 Tool for placing virtual stations in demand-responsive transport systems in villages by defining and minimizing a global energy (`drtplanr`, name is inspired by [stplanr](https://github.com/ropensci/stplanr)). The station locations are randomly initialized in the street network and iteratively optimized based on the reachable population in combination with walking and driving times.
 
-The configured model optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland. 
+The model in the package example optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland. 
 
 ## Getting started
-First the necessary data sets (OSM cutout and STATPOP) have to be downloaded. Open a shell in the root directory of the repository and run the following lines:
-
-``` bash
-# Get STATPOP data set
-mkdir -p data/statpop && cd "$_"
-curl https://www.bfs.admin.ch/bfsstatic/dam/assets/9947069/master -o statpop.zip
-unzip -a statpop.zip
-rm statpop.zip && cd -
-
-# Get OSM cutout
-mkdir -p data/osm && cd "$_"
-curl https://download.geofabrik.de/europe/switzerland-latest-free.shp.zip -o osm.zip
-unzip -a osm.zip
-rm osm.zip && cd -
-
-```
-
-Then install the required R packages:
+Install the development version from [GitHub](https://github.com/munterfinger/drtplanr/) with:
 
 ``` r
-Rscript -e 'install.packages(c("data.table", "sf", "dodgr", "osmdata"), repo="http://cran.rstudio.com/")'
-Rscript -e 'install.packages(c("hereR", "ggplot2", "mapview"), repo="http://cran.rstudio.com/")'
-``` 
-
-Done!
-
-## Run the model
-If the steps described above have been successfully completed, you can run the model
-by starting the R scripts in the repository root:
-
-``` bash
-Rscript 01_prepare_data.R 
-Rscript 02_model_run.R  
+devtools::install_github("munterfinger/drtplanr")
 ```
 
-|![](docs/Jegenstorf_i5000_energy_plot.png)|![](docs/Jegenstorf_i5000_station_map.png)|
-|---|---|
+Load the package example data sets:
+
+* aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
+* pop: Centroids of population and structural business hectare grid statistis, where the variable 'n' is the sum of full-time equivalence jobs and residents per hectare (BfS).
+
+``` r
+aoi <- 
+  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+
+pop <- 
+  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+```
+
+To create the datasets for a different region in Switzerland use the [create.sh]() and adjust the geocoded address.
+``` r
+./create -k <YOUR HERE API KEY>
+```
+
+Create a new demand reponsive transport model for the aoi 'Jegenstorf', with 10 randomly initialized virtual on-demand stations.
+``` r 
+m <- drt_drtm(
+  model_name = "Jegenstorf",
+  aoi = aoi, pop = pop,
+  n_vir = 10, m_seg = 100
+)
+m
+```
+
+Iterate the model 100 times, where every iteration consists of:
+
+1. Relocate a virtual station randomly on the road segments.
+2. Calculate the new global energy of the model using the routing graphs.
+3. If the energy is lower than previuos iteration: Keep the new location of the virtual station; otherwise: Reset to the previous location.
+
+``` r 
+m1 <- drt_iterate(m, 100)
+m1
+```
 
 ## Authors
 * Merlin Unterfinger (implementation) - [munterfinger](https://github.com/munterfinger)
@@ -52,8 +59,8 @@ Rscript 02_model_run.R
 
 ## References
 * [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs 
-* [geofabrik.de](https://download.geofabrik.de): OpenStreetMap data extracts
-* [bfs](https://www.bfs.admin.ch/): Population data for Switzerland
+* [BfS](https://www.bfs.admin.ch/): Population data for Switzerland
+* [OSM](https://www.openstreetmap.org/): Street network data for routing purposes.
 
 ## Licence
-* This repository is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+* This repository is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details.

@@ -2,12 +2,9 @@
 % Please edit documentation in R/drtm.R
 \name{drt_iterate}
 \alias{drt_iterate}
-\alias{drt_iterate.drtm}
 \title{Iterate}
 \usage{
-drt_iterate(obj, ...)
-
-\method{drt_iterate}{drtm}(obj, n_iter)
+drt_iterate(obj, n_iter)
 }
 \arguments{
 \item{obj, }{drtm, a drtm model.}
@@ -15,16 +12,15 @@ drt_iterate(obj, ...)
 \item{n_iter}{numeric, number of iterations.}
 }
 \value{
-A new \code{drtm} object with \code{n_iter} times more iterations.
+A new drtm with 'n_iter' times more iterations.
 }
 \description{
 Minimize the gloabal energy of a drtm model.
 }
 \examples{
-m <- drt_drtm(
-model_name = "Jegenstorf",
-aoi = aoi, pop = pop,
-n_vir = 10, m_seg = 100
+# Example model
+m <- drt_import(
+  system.file("Jegenstorf_i0.RData", package="drtplanr")
 )
 
 drt_iterate(m, 10)
