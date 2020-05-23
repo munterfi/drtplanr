@@ -21,8 +21,29 @@ mapviewOptions(
 )
 ```
 
-## Area of Interest
-```{r out.width='100%'}
+Tool for placing virtual stations in demand-responsive transport systems in villages by defining and minimizing a global energy (`drtplanr`, name is inspired by [stplanr](https://github.com/ropensci/stplanr)). The station locations are randomly initialized in the street network and iteratively optimized based on the reachable population in combination with walking and driving times.
+
+The model in the package example optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland. 
+
+## Setup
+```{r }
+library(drtplanr)
+set.seed(123)
+```
+
+## Example data sets
+Load the package example data sets:
+
+* aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
+* pop: Centroids of population and structural business hectare grid statistis (BfS).
+
+```{r }
+aoi <- 
+  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+
+pop <- 
+  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+
 m <-
   mapview(aoi, alpha.region = 0, layer.name = "AOI", homebutton = FALSE) +
   mapview(pop, zcol = "n", alpha = 0, layer.name = "Population", homebutton = FALSE)
@@ -30,10 +51,8 @@ m
 ```
 
 ## Initialize drtm model
+Create a new demand reponsive transport model for the aoi 'Jegenstorf', with 10 randomly initialized virtual on-demand stations.
 ```{r }
-library(drtplanr)
-
-# Create model
 m <- drt_drtm(
   model_name = "Jegenstorf",
   aoi = aoi, pop = pop,
@@ -43,6 +62,12 @@ m
 ```
 
 ## Minimze the energy of the model
+Iterate the model 100 times, where every iteration consists of:
+
+1. Relocate a virtual station randomly on the road segments.
+2. Calculate the new global energy of the model using the routing graphs.
+3. If the energy is lower than previuos iteration: Keep the new location of the virtual station; otherwise: Reset to the previous location.
+
 ```{r }
 m1 <- drt_iterate(m, 100)
 m1
@@ -60,9 +85,9 @@ drt_map(m1)
 ```
 
 ## Iterate again
-
+The model state is saved in the model. This allows making copies and store different stages of the optimization.
 ```{r out.width='100%'}
-m2 <- drt_iterate(m1, 900)
+m2 <- drt_iterate(m1, 100)
 m2
 ```
 
@@ -75,10 +100,20 @@ drt_map(m2)
 ```
 
 ## Export and import
+The drtplanr has functions to import and export the drtm objects. Furthermore graphics of the energy plot and the station map can be exported as images (.png).
 ```{r eval=FALSE, out.width='100%'}
-drt_export(m2, path = "docs/results")
+# Export model
+drt_export(m2, path = getwd())
 
-drt_import("docs/results")
+# Import model
+m2 <- drt_import("Jegenstorf_i1000.RData")
 
-drt_save_graphics(m2, path = paste0(getwd(), "/docs"))
+# Save graphics
+drt_save_graphics(m2, path = getwd())
 ```
+
+## References
+* [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs 
+* [BfS](https://www.bfs.admin.ch/): Population data for Switzerland
+* [OSM](https://www.openstreetmap.org/): Street network data for routing purposes.
+
