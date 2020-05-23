@@ -2,6 +2,7 @@
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![R build status](https://github.com/munterfinger/drtplanr/workflows/R-CMD-check/badge.svg)](https://github.com/munterfinger/drtplanr/actions)
+[![Codecov test coverage](https://codecov.io/gh/munterfinger/drtplanr/branch/master/graph/badge.svg)](https://codecov.io/gh/munterfinger/drtplanr?branch=master)
 <!-- badges: end -->
 
 Tool for placing virtual stations in demand-responsive transport systems in villages by defining and minimizing a global energy (`drtplanr`, name is inspired by [stplanr](https://github.com/ropensci/stplanr)). The station locations are randomly initialized in the street network and iteratively optimized based on the reachable population in combination with walking and driving times.
