@@ -16,6 +16,7 @@ jobs:
       - uses: r-lib/actions/setup-r@master
       - name: Install system dependencies
         run: |
+          Rscript -e "install.packages('remotes')"
           Rscript -e "remotes::install_github('r-hub/sysreqs')"
           sysreqs=$(Rscript -e "cat(sysreqs::sysreq_commands('DESCRIPTION'))")
           sudo -s eval "$sysreqs"
@@ -30,7 +31,7 @@ jobs:
             libcurl4-openssl-dev
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck"))
+          install.packages("rcmdcheck")
           remotes::install_deps(dependencies = TRUE)
         shell: Rscript {0}
       - name: Check
