@@ -50,3 +50,8 @@ cd -
 
 # Cleanup and reinstall
 ./03_cleanup_install.sh
+
+# Create drtm example object
+cd ..
+./data-raw/04_drtm_object.R
+cd -
