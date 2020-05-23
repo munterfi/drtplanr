@@ -16,6 +16,7 @@ Install the development version from [GitHub](https://github.com/munterfinger/dr
 devtools::install_github("munterfinger/drtplanr")
 ```
 
+### Example data: Jegenstorf
 Load the package example data sets:
 
 * aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
@@ -29,11 +30,13 @@ pop <-
   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
 ```
 
-To create the datasets for a different region in Switzerland use the [create.sh]() and adjust the geocoded address.
+To create the datasets for a different region in Switzerland use the [create.sh](https://github.com/munterfinger/drtplanr/blob/master/data-raw/create.sh) and adjust the geocoded address:
 ``` r
 ./create -k <YOUR HERE API KEY>
 ```
+**Note:** A HERE API key is required and has to be passed as with the option `-k`.
 
+### Example model:
 Create a new demand reponsive transport model for the aoi 'Jegenstorf', with 10 randomly initialized virtual on-demand stations.
 ``` r 
 m <- drt_drtm(
