@@ -1,40 +1,58 @@
-# Demand-responsive transport planner
-<!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![R build status](https://github.com/munterfinger/drtplanr/workflows/R-CMD-check/badge.svg)](https://github.com/munterfinger/drtplanr/actions)
-<!-- badges: end -->
+---
+title: "run-model"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{run-model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(mapview)
+mapviewOptions(
+  vector.palette = colorRampPalette(
+    c("#000004FF", "#420A68FF", "#932667FF", "#DD513AFF", "#FCA50AFF", "#FCFFA4FF")
+  )
+)
+```
 
 Tool for placing virtual stations in demand-responsive transport systems in villages by defining and minimizing a global energy (`drtplanr`, name is inspired by [stplanr](https://github.com/ropensci/stplanr)). The station locations are randomly initialized in the street network and iteratively optimized based on the reachable population in combination with walking and driving times.
 
 The model in the package example optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland. 
 
-## Getting started
-Install the development version from [GitHub](https://github.com/munterfinger/drtplanr/) with:
-
-``` r
-devtools::install_github("munterfinger/drtplanr")
+## Setup
+```{r }
+library(drtplanr)
+set.seed(123)
 ```
 
+## Example data sets
 Load the package example data sets:
 
 * aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
-* pop: Centroids of population and structural business hectare grid statistis, where the variable 'n' is the sum of full-time equivalence jobs and residents per hectare (BfS).
+* pop: Centroids of population and structural business hectare grid statistis (BfS).
 
-``` r
+```{r }
 aoi <- 
   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
 
 pop <- 
   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+
+m <-
+  mapview(aoi, alpha.region = 0, layer.name = "AOI", homebutton = FALSE) +
+  mapview(pop, zcol = "n", alpha = 0, layer.name = "Population", homebutton = FALSE)
+m
 ```
 
-To create the datasets for a different region in Switzerland use the [create.sh]() and adjust the geocoded address.
-``` r
-./create -k <YOUR HERE API KEY>
-```
-
+## Initialize drtm model
 Create a new demand reponsive transport model for the aoi 'Jegenstorf', with 10 randomly initialized virtual on-demand stations.
-``` r 
+```{r }
 m <- drt_drtm(
   model_name = "Jegenstorf",
   aoi = aoi, pop = pop,
@@ -43,25 +61,59 @@ m <- drt_drtm(
 m
 ```
 
+## Minimze the energy of the model
 Iterate the model 100 times, where every iteration consists of:
 
 1. Relocate a virtual station randomly on the road segments.
 2. Calculate the new global energy of the model using the routing graphs.
 3. If the energy is lower than previuos iteration: Keep the new location of the virtual station; otherwise: Reset to the previous location.
 
-``` r 
+```{r }
 m1 <- drt_iterate(m, 100)
 m1
 ```
 
-## Authors
-* Merlin Unterfinger (implementation) - [munterfinger](https://github.com/munterfinger)
-* Oliver Hofer (ideas and feedback) - [nebucaz](https://github.com/nebucaz)
+## Plotting
+### Energy curve
+```{r out.width='100%'}
+drt_plot(m1)
+```
+
+### Station map
+```{r out.width='100%'}
+drt_map(m1)
+```
+
+## Iterate again
+The model state is saved in the model. This allows making copies and store different stages of the optimization.
+```{r out.width='100%'}
+m2 <- drt_iterate(m1, 100)
+m2
+```
+
+```{r out.width='100%'}
+drt_plot(m2)
+```
+
+```{r out.width='100%'}
+drt_map(m2)
+```
+
+## Export and import
+The drtplanr has functions to import and export the drtm objects. Furthermore graphics of the energy plot and the station map can be exported as images (.png).
+```{r eval=FALSE, out.width='100%'}
+# Export model
+drt_export(m2, path = getwd())
+
+# Import model
+m2 <- drt_import("Jegenstorf_i1000.RData")
+
+# Save graphics
+drt_save_graphics(m2, path = getwd())
+```
 
 ## References
 * [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs 
 * [BfS](https://www.bfs.admin.ch/): Population data for Switzerland
 * [OSM](https://www.openstreetmap.org/): Street network data for routing purposes.
 
-## Licence
-* This repository is licensed under the GNU General Public License v3.0 - see the [LICENSE.md](LICENSE.md) file for details.
