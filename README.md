@@ -16,6 +16,7 @@ Install the development version from [GitHub](https://github.com/munterfinger/dr
 devtools::install_github("munterfinger/drtplanr")
 ```
 
+### Example data: Jegenstorf
 Load the package example data sets:
 
 * aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
@@ -29,19 +30,22 @@ pop <-
   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
 ```
 
-To create the datasets for a different region in Switzerland use the [create.sh]() and adjust the geocoded address.
+To create the datasets for a different region in Switzerland use the [create.sh](https://github.com/munterfinger/drtplanr/blob/master/data-raw/create.sh) and adjust the geocoded address:
 ``` r
-./create -k <YOUR HERE API KEY>
+./create.sh -k <YOUR HERE API KEY>
 ```
+**Note:** A HERE API key is required and has to be passed as with the option `-k`.
 
+### Example model
 Create a new demand reponsive transport model for the aoi 'Jegenstorf', with 10 randomly initialized virtual on-demand stations.
 ``` r 
 m <- drt_drtm(
-  model_name = "Jegenstorf",
-  aoi = aoi, pop = pop,
-  n_vir = 10, m_seg = 100
+  model_name = "Jegenstorf",  # Name of the drtm (used when exporting the model)
+  aoi = aoi,                  # Area of interest (sf with geometry type POLYGON)
+  pop = pop,                  # Population layer (sf with geometry type POINT)
+  n_vir = 10,                 # Number of virtual stations to place (numeric)
+  m_seg = 100                 # Resolution of the segments on the street network
 )
-m
 ```
 
 Iterate the model 100 times, where every iteration consists of:
@@ -52,7 +56,13 @@ Iterate the model 100 times, where every iteration consists of:
 
 ``` r 
 m1 <- drt_iterate(m, 100)
-m1
+```
+
+### Visualize results
+Plot the model state:
+``` r 
+drt_plot(m)                 # Energy plot showing progress of iterations
+drt_map(m)                  # Map with the inital and final station locations
 ```
 
 ## Authors
