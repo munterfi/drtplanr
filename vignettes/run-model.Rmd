@@ -1,5 +1,5 @@
 ---
-title: "run-model"
+title: "Example model run"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{run-model}
@@ -57,7 +57,7 @@ Create a new demand reponsive transport model for the aoi 'Jegenstorf', with 10 
 m <- drt_drtm(
   model_name = "Jegenstorf",
   aoi = aoi, pop = pop,
-  n_vir = 10, m_seg = 100
+  n_vir = 15, m_seg = 100
 )
 m
 ```
@@ -69,7 +69,7 @@ Iterate the model 100 times, where every iteration consists of:
 2. Calculate the new global energy of the model using the routing graphs.
 3. If the energy is lower than previuos iteration: Keep the new location of the virtual station; otherwise: Reset to the previous location.
 
-```{r include=FALSE}
+```{r include=FALSE, eval=TRUE}
 m1 <- drt_iterate(m, 100)
 ```
 
@@ -96,11 +96,13 @@ drt_map(m1)
 ## Iterate again
 The model state is saved in the model. This allows making copies and store different stages of the optimization.
 ```{r include=FALSE, out.width='100%'}
-m2 <- drt_iterate(m1, 100)
+m2 <- drt_import(
+  system.file("Jegenstorf_i1000.RData", package="drtplanr")
+)
 ```
 
 ```{r eval=FALSE, out.width='100%'}
-m2 <- drt_iterate(m1, 100)
+m2 <- drt_iterate(m1, 900)
 ```
 
 Print model summary:

@@ -15,3 +15,7 @@ navbar:
     website:
       icon: fa-globe fa-lg
       href: https://munterfinger.ch
+
+authors:
+  Merlin Unterfinger:
+    href: https://www.munterfinger.ch
