@@ -411,6 +411,7 @@ drt_iterate.drtm <- function(obj, n_iter) {
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' # Example model
 #' m <- drt_import(
 #'   system.file("Jegenstorf_i0.RData", package="drtplanr")
@@ -418,6 +419,7 @@ drt_iterate.drtm <- function(obj, n_iter) {
 #'
 #' # Export to temporary dir
 #' drt_export(m, path = tempdir())
+#' }
 drt_export = function(obj, path) UseMethod("drt_export")
 
 #' @export

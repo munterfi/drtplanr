@@ -18,6 +18,7 @@ None.
 Export drtm
 }
 \examples{
+\donttest{
 # Example model
 m <- drt_import(
   system.file("Jegenstorf_i0.RData", package="drtplanr")
@@ -25,4 +26,5 @@ m <- drt_import(
 
 # Export to temporary dir
 drt_export(m, path = tempdir())
+}
 }
