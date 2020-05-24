@@ -57,7 +57,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/run-model.html">run-model</a>
+      <a href="articles/run-model.html">Example model run</a>
     </li>
   </ul>
 </li>
@@ -100,18 +100,27 @@
 
 <p>Tool for placing virtual stations in demand-responsive transport systems in villages by defining and minimizing a global energy (<code>drtplanr</code>, name is inspired by <a href="https://github.com/ropensci/stplanr">stplanr</a>). The station locations are randomly initialized in the street network and iteratively optimized based on the reachable population in combination with walking and driving times.</p>
 <p>The model in the package example optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland.</p>
+<table class="table">
+<thead><tr class="header">
+<th><img src="docs/Jegenstorf_i1000_energy_plot.png"></th>
+<th><img src="docs/Jegenstorf_i1000_station_map.png"></th>
+</tr></thead>
+<tbody></tbody>
+</table>
 <div id="getting-started" class="section level2">
 <h2 class="hasAnchor">
 <a href="#getting-started" class="anchor"></a>Getting started</h2>
 <p>Install the development version from <a href="https://github.com/munterfinger/drtplanr/">GitHub</a> with:</p>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu">install_github</span>(<span class="st">"munterfinger/drtplanr"</span>)</pre></div>
-<div id="example-data-jegenstorf" class="section level3">
+<div class="sourceCode" id="cb1"><pre class="r"><span class="kw pkg">remotes</span><span class="kw ns">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span>(<span class="st">"munterfinger/drtplanr"</span>)</pre></div>
+<div id="load-example-data" class="section level3">
 <h3 class="hasAnchor">
-<a href="#example-data-jegenstorf" class="anchor"></a>Example data: Jegenstorf</h3>
-<p>Load the package example data sets:</p>
+<a href="#load-example-data" class="anchor"></a>Load example data</h3>
+<p>Load the package example data sets of a village in Switzerland:</p>
 <ul>
-<li>aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.</li>
-<li>pop: Centroids of population and structural business hectare grid statistis, where the variable ‘n’ is the sum of full-time equivalence jobs and residents per hectare (BfS).</li>
+<li>
+<code>aoi</code>: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.</li>
+<li>
+<code>pop</code>: Centroids of population and structural business hectare grid statistis, where the variable ‘n’ is the sum of full-time equivalence jobs and residents per hectare (BfS).</li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="r"><span class="no">aoi</span> <span class="kw">&lt;-</span>
   <span class="kw pkg">sf</span><span class="kw ns">::</span><span class="fu"><a href="https://rdrr.io/pkg/sf/man/st_read.html">st_read</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/system.file.html">system.file</a></span>(<span class="st">"example.gpkg"</span>, <span class="kw">package</span><span class="kw">=</span><span class="st">"drtplanr"</span>), <span class="kw">layer</span> <span class="kw">=</span> <span class="st">"aoi"</span>)
@@ -122,15 +131,15 @@
 <div class="sourceCode" id="cb3"><pre class="r">./create.sh -k &lt;YOUR HERE API KEY&gt;</pre></div>
 <p><strong>Note:</strong> A HERE API key is required and has to be passed as with the option <code>-k</code>.</p>
 </div>
-<div id="example-model" class="section level3">
+<div id="run-a-model" class="section level3">
 <h3 class="hasAnchor">
-<a href="#example-model" class="anchor"></a>Example model</h3>
+<a href="#run-a-model" class="anchor"></a>Run a model</h3>
 <p>Create a new demand reponsive transport model for the aoi ‘Jegenstorf’, with 10 randomly initialized virtual on-demand stations.</p>
 <div class="sourceCode" id="cb4"><pre class="r"><span class="no">m</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/drt_drtm.html">drt_drtm</a></span>(
   <span class="kw">model_name</span> <span class="kw">=</span> <span class="st">"Jegenstorf"</span>,  <span class="co"># Name of the drtm (used when exporting the model)</span>
   <span class="kw">aoi</span> <span class="kw">=</span> <span class="no">aoi</span>,                  <span class="co"># Area of interest (sf with geometry type POLYGON)</span>
   <span class="kw">pop</span> <span class="kw">=</span> <span class="no">pop</span>,                  <span class="co"># Population layer (sf with geometry type POINT)</span>
-  <span class="kw">n_vir</span> <span class="kw">=</span> <span class="fl">10</span>,                 <span class="co"># Number of virtual stations to place (numeric)</span>
+  <span class="kw">n_vir</span> <span class="kw">=</span> <span class="fl">15</span>,                 <span class="co"># Number of virtual stations to place (numeric)</span>
   <span class="kw">m_seg</span> <span class="kw">=</span> <span class="fl">100</span>                 <span class="co"># Resolution of the segments on the street network</span>
 )</pre></div>
 <p>Iterate the model 100 times, where every iteration consists of:</p>
@@ -144,7 +153,7 @@
 <div id="visualize-results" class="section level3">
 <h3 class="hasAnchor">
 <a href="#visualize-results" class="anchor"></a>Visualize results</h3>
-<p>Plot the model state:</p>
+<p>Plot the energy optimization curve and the station map of the model:</p>
 <div class="sourceCode" id="cb6"><pre class="r"><span class="fu"><a href="reference/drt_plot.html">drt_plot</a></span>(<span class="no">m</span>)                 <span class="co"># Energy plot showing progress of iterations</span>
 <span class="fu"><a href="reference/drt_map.html">drt_map</a></span>(<span class="no">m</span>)                  <span class="co"># Map with the inital and final station locations</span></pre></div>
 </div>
@@ -201,7 +210,8 @@
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Merlin Unterfinger <br><small class="roles"> Author, maintainer </small>  </li>
+<li>
+<a href="https://www.munterfinger.ch">Merlin Unterfinger</a> <br><small class="roles"> Author, maintainer </small>  </li>
 </ul>
 </div>
 
@@ -218,7 +228,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Merlin Unterfinger.</p>
+  <p>Developed by <a href="https://www.munterfinger.ch">Merlin Unterfinger</a>.</p>
 </div>
 
 <div class="pkgdown">

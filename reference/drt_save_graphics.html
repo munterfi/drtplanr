@@ -98,7 +98,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/run-model.html">run-model</a>
+      <a href="../articles/run-model.html">Example model run</a>
     </li>
   </ul>
 </li>
@@ -166,12 +166,11 @@
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'>#' # Example model</span>
 <span class='no'>m</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='drt_import.html'>drt_import</a></span>(
-  <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"Jegenstorf_i0.RData"</span>, <span class='kw'>package</span><span class='kw'>=</span><span class='st'>"drtplanr"</span>)
+  <span class='fu'><a href='https://rdrr.io/r/base/system.file.html'>system.file</a></span>(<span class='st'>"Jegenstorf_i1000.RData"</span>, <span class='kw'>package</span><span class='kw'>=</span><span class='st'>"drtplanr"</span>)
 )
 
 <span class='co'># Save to temp dir</span>
-<span class='fu'>drt_save_graphics</span>(<span class='no'>m</span>, <span class='kw'>path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>())</div><div class='output co'>#&gt; <span class='message'>2020-05-24 13:24:12 Print energy plot</span></div><div class='output co'>#&gt; <span class='message'>2020-05-24 13:24:12 Print station map</span></div><div class='output co'>#&gt; <span class='message'>2020-05-24 13:24:13 Export graphics</span></div><div class='output co'>#&gt; <span class='message'>geom_path: Each group consists of only one observation. Do you need to adjust</span>
-#&gt; <span class='message'>the group aesthetic?</span></div></pre>
+<span class='fu'>drt_save_graphics</span>(<span class='no'>m</span>, <span class='kw'>path</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/tempfile.html'>tempdir</a></span>())</div><div class='output co'>#&gt; <span class='message'>2020-05-24 21:16:02 Print energy plot</span></div><div class='output co'>#&gt; <span class='message'>2020-05-24 21:16:02 Print station map</span></div><div class='output co'>#&gt; <span class='message'>2020-05-24 21:16:02 Export graphics</span></div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
@@ -183,7 +182,7 @@
 
       <footer>
       <div class="copyright">
-  <p>Developed by Merlin Unterfinger.</p>
+  <p>Developed by <a href='https://www.munterfinger.ch'>Merlin Unterfinger</a>.</p>
 </div>
 
 <div class="pkgdown">
