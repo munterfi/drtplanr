@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
+library(sf)
 library(mapview)
 mapviewOptions(
   vector.palette = colorRampPalette(
@@ -37,7 +38,7 @@ Load the package example data sets:
 * aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
 * pop: Centroids of population and structural business hectare grid statistis (BfS).
 
-```{r }
+```{r out.width='100%'}
 aoi <- 
   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
 
@@ -68,8 +69,16 @@ Iterate the model 100 times, where every iteration consists of:
 2. Calculate the new global energy of the model using the routing graphs.
 3. If the energy is lower than previuos iteration: Keep the new location of the virtual station; otherwise: Reset to the previous location.
 
-```{r }
+```{r include=FALSE}
 m1 <- drt_iterate(m, 100)
+```
+
+```{r eval=FALSE}
+m1 <- drt_iterate(m, 100)
+```
+
+Print model summary:
+```{r out.width='100%'}
 m1
 ```
 
@@ -86,11 +95,20 @@ drt_map(m1)
 
 ## Iterate again
 The model state is saved in the model. This allows making copies and store different stages of the optimization.
-```{r out.width='100%'}
+```{r include=FALSE, out.width='100%'}
 m2 <- drt_iterate(m1, 100)
+```
+
+```{r eval=FALSE, out.width='100%'}
+m2 <- drt_iterate(m1, 100)
+```
+
+Print model summary:
+```{r out.width='100%'}
 m2
 ```
 
+## Visualize results
 ```{r out.width='100%'}
 drt_plot(m2)
 ```
