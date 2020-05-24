@@ -48,4 +48,3 @@ config.json
 *.html
 .Rproj.user
 inst/doc
-docs

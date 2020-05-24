@@ -18,11 +18,8 @@ Plot energy curve
 \examples{
 # Example model
 m <- drt_import(
-  system.file("Jegenstorf_i0.RData", package="drtplanr")
+  system.file("Jegenstorf_i1000.RData", package="drtplanr")
 )
-
-# Iterate
-m <- drt_iterate(m, 10)
 
 # Plot
 drt_plot(m)
