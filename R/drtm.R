@@ -146,17 +146,24 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
 #' )
 #' print(m)
 print.drtm <- function(x, ...) {
   obj <- x
+  div1 <- "_______________________________________________"
+  div2 <- "==============================================="
   cat(
     sprintf(
-      "Demand-responsive transport model '%s'\nIteration: %s\nInitial energy: %s\nCurrent energy: %s\nExisting stations: %s\nVirtual stations: %s",
-      obj$id, obj$e[obj$i+1, ]$iteration,
-      obj$e[1, ]$value %>% round(1), obj$e[obj$i+1, ]$value %>% round(1),
-      length(obj$idx_const), obj$params$n_sta - length(obj$idx_const)
+      "%s '%s'\n\n%-16s%-16s%-16s\n%-16s%15.0f%16.2f\n%-16s%-16s%-16s\n%-16s%15.1f%16.1f\n%-16s%-16s%-16s\n%-16s%15.0f%16.0f\n%s\n",
+      "Demand-responsive transport model", obj$id,
+      "_______________", "N _____________", "dE ____________",
+      "Iteration:", obj$e[obj$i+1, ]$iteration, diff(m$e$value) %>% mean() %>% round(2),
+      "_______________", "Initial _______", "Current _______",
+      "Energy:", obj$e[1, ]$value %>% round(1), obj$e[obj$i+1, ]$value %>% round(1),
+      "_______________", "Existing ______", "Virtual _______",
+      "Stations:", length(obj$idx_const),  obj$params$n_sta - length(obj$idx_const),
+      div2
     )
   )
   invisible(obj)
@@ -358,7 +365,7 @@ e_walkDrive_pop <- function(idx, seg, pop, graph) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
 #' )
 #'
 #' drt_iterate(m, 10)
@@ -414,7 +421,7 @@ drt_iterate.drtm <- function(obj, n_iter) {
 #' \donttest{
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
 #' )
 #'
 #' # Export to temporary dir
@@ -442,7 +449,7 @@ drt_export.drtm <- function(obj, path) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
 #' )
 drt_import = function(file_name) UseMethod("drt_import")
 
@@ -469,11 +476,8 @@ drt_import.character <- function(file_name) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
 #' )
-#'
-#' # Iterate
-#' m <- drt_iterate(m, 10)
 #'
 #' # Plot
 #' drt_plot(m)
@@ -503,7 +507,7 @@ drt_plot <- function(obj) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
 #' )
 #'
 #' drt_map(m)
@@ -554,7 +558,7 @@ drt_map.drtm <- function(obj) {
 #' @examples
 #' #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i0.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
 #' )
 #'
 #' # Save to temp dir

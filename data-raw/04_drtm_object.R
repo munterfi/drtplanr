@@ -14,6 +14,7 @@
 # =============================================================================
 
 library(drtplanr)
+set.seed(123)
 
 # Example data
 aoi <-
@@ -26,9 +27,15 @@ pop <-
 m <- drt_drtm(
   model_name = "Jegenstorf",
   aoi = aoi, pop = pop,
-  n_vir = 10, m_seg = 100
+  n_vir = 15, m_seg = 100
 )
 m
 
+# Iterate
+m <- drt_iterate(m, 1000)
+
 # Export
 drt_export(m, paste0(getwd(), "/inst"))
+
+# Save graphics
+drt_save_graphics(m, paste0(getwd(), "/docs"))
