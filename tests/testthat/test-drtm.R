@@ -14,7 +14,14 @@ test_that("drtm works", {
     n_vir = 10, m_seg = 100
   )
 
-  # Test
+  # Test drtm class
   expect_is(m, "drtm")
   expect_equal(length(m), 9)
+
+  # Iterate model
+  m <- drt_iterate(m, 10)
+
+  # Test iteration
+  expect_equal(m$i, 10)
+
 })
