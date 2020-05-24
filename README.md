@@ -7,43 +7,48 @@
 
 Tool for placing virtual stations in demand-responsive transport systems in villages by defining and minimizing a global energy (`drtplanr`, name is inspired by [stplanr](https://github.com/ropensci/stplanr)). The station locations are randomly initialized in the street network and iteratively optimized based on the reachable population in combination with walking and driving times.
 
-The model in the package example optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland. 
+The model in the package example optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland.
+
+|![](docs/Jegenstorf_i1000_energy_plot.png)|![](docs/Jegenstorf_i1000_station_map.png)|
+|---|---|
 
 ## Getting started
 Install the development version from [GitHub](https://github.com/munterfinger/drtplanr/) with:
 
 ``` r
-devtools::install_github("munterfinger/drtplanr")
+remotes::install_github("munterfinger/drtplanr")
 ```
 
-### Example data: Jegenstorf
-Load the package example data sets:
+### Load example data
+Load the package example data sets of a village in Switzerland:
 
-* aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
-* pop: Centroids of population and structural business hectare grid statistis, where the variable 'n' is the sum of full-time equivalence jobs and residents per hectare (BfS).
+* `aoi`: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
+* `pop`: Centroids of population and structural business hectare grid statistis, where the variable 'n' is the sum of full-time equivalence jobs and residents per hectare (BfS).
 
 ``` r
-aoi <- 
+aoi <-
   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
 
-pop <- 
+pop <-
   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
 ```
 
-To create the datasets for a different region in Switzerland use the [create.sh](https://github.com/munterfinger/drtplanr/blob/master/data-raw/create.sh) and adjust the geocoded address:
+To create the datasets for a different region in Switzerland use the
+[create.sh](https://github.com/munterfinger/drtplanr/blob/master/data-raw/create.sh)
+and adjust the geocoded address:
 ``` r
 ./create.sh -k <YOUR HERE API KEY>
 ```
 **Note:** A HERE API key is required and has to be passed as with the option `-k`.
 
-### Example model
+### Run a model
 Create a new demand reponsive transport model for the aoi 'Jegenstorf', with 10 randomly initialized virtual on-demand stations.
-``` r 
+``` r
 m <- drt_drtm(
   model_name = "Jegenstorf",  # Name of the drtm (used when exporting the model)
   aoi = aoi,                  # Area of interest (sf with geometry type POLYGON)
   pop = pop,                  # Population layer (sf with geometry type POINT)
-  n_vir = 10,                 # Number of virtual stations to place (numeric)
+  n_vir = 15,                 # Number of virtual stations to place (numeric)
   m_seg = 100                 # Resolution of the segments on the street network
 )
 ```
@@ -54,13 +59,13 @@ Iterate the model 100 times, where every iteration consists of:
 2. Calculate the new global energy of the model using the routing graphs.
 3. If the energy is lower than previuos iteration: Keep the new location of the virtual station; otherwise: Reset to the previous location.
 
-``` r 
+``` r
 m1 <- drt_iterate(m, 100)
 ```
 
 ### Visualize results
-Plot the model state:
-``` r 
+Plot the energy optimization curve and the station map of the model: 
+``` r
 drt_plot(m)                 # Energy plot showing progress of iterations
 drt_map(m)                  # Map with the inital and final station locations
 ```
@@ -70,7 +75,7 @@ drt_map(m)                  # Map with the inital and final station locations
 * Oliver Hofer (ideas and feedback) - [nebucaz](https://github.com/nebucaz)
 
 ## References
-* [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs 
+* [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs
 * [BfS](https://www.bfs.admin.ch/): Population data for Switzerland
 * [OSM](https://www.openstreetmap.org/): Street network data for routing purposes.
 
