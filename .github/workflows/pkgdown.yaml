@@ -1,13 +1,11 @@
 on:
   push:
-  pull_request:
-    branches:
-      - master
+    branches: master
 
-name: R-CMD-check
+name: pkgdown
 
 jobs:
-  R-CMD-check:
+  pkgdown:
     runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -40,12 +38,12 @@ jobs:
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
       - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck", "covr"))
+          install.packages("remotes")
           remotes::install_deps(dependencies = TRUE)
+          remotes::install_dev("pkgdown")
         shell: Rscript {0}
-      - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "warning")
-        shell: Rscript {0}
-      - name: Test coverage
-        run: covr::codecov()
+      - name: Install package
+        run: R CMD INSTALL .
+      - name: Deploy package
+        run: pkgdown::deploy_to_branch(new_process = FALSE)
         shell: Rscript {0}
