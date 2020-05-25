@@ -1,10 +1,10 @@
 test_that("drtm works", {
   # Example data
   aoi <-
-    sf::st_read(system.file("example.gpkg", package="drtplanr"),
+    sf::st_read(system.file("example.gpkg", package = "drtplanr"),
                 layer = "aoi", quiet = TRUE)
   pop <-
-    sf::st_read(system.file("example.gpkg", package="drtplanr"),
+    sf::st_read(system.file("example.gpkg", package = "drtplanr"),
                 layer = "pop", quiet = TRUE)
 
   # Create model
@@ -18,7 +18,8 @@ test_that("drtm works", {
   expect_is(m, "drtm")
   expect_equal(length(m), 9)
 
-  # Iterate model
+  # Iterate model with different energy
+  m$params$calc_energy <- e_walk_pop
   m <- drt_iterate(m, 10)
 
   # Test iteration
