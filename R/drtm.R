@@ -21,10 +21,10 @@
 #' @examples
 #' # Example data
 #' aoi <-
-#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+#'   sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 #'
 #' pop <-
-#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+#'   sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "pop")
 #'
 #' # Create model
 #' m <- drt_drtm(
@@ -146,7 +146,7 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 #' )
 #' print(m)
 print.drtm <- function(x, ...) {
@@ -189,7 +189,7 @@ print.drtm <- function(x, ...) {
 #' @examples
 #' # Example data
 #' aoi <-
-#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+#'   sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 #'
 #' drt_osm_bb(aoi)
 drt_osm_bb = function(aoi) UseMethod("drt_osm_bb")
@@ -219,10 +219,10 @@ drt_osm_bb.sf <- function(aoi) {
 #' @examples
 #' # Example data
 #' aoi <-
-#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+#'   sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 #'
 #' pop <-
-#'   sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+#'   sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "pop")
 #'
 #' drt_mask(pop, aoi)
 drt_mask = function(layer, aoi) UseMethod("drt_mask")
@@ -372,7 +372,7 @@ e_walkDrive_pop <- function(idx, seg, pop, graph) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' drt_iterate(m, 10)
@@ -427,7 +427,7 @@ drt_iterate.drtm <- function(obj, n_iter) {
 #' \donttest{
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' # Export to temporary dir
@@ -454,7 +454,7 @@ drt_export.drtm <- function(obj, path) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 #' )
 drt_import = function(file_name) UseMethod("drt_import")
 
@@ -480,7 +480,7 @@ drt_import.character <- function(file_name) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' # Plot
@@ -511,7 +511,7 @@ drt_plot <- function(obj) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' drt_map(m)
@@ -562,7 +562,7 @@ drt_map.drtm <- function(obj) {
 #' @examples
 #' #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package="drtplanr")
+#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' # Save to temp dir
