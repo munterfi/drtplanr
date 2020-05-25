@@ -1,4 +1,4 @@
-# Demand-responsive transport planner
+# Demand-responsive transport planner <img src="man/figures/logo.svg" align="right" alt="" width="120" />
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![R build status](https://github.com/munterfinger/drtplanr/workflows/R-CMD-check/badge.svg)](https://github.com/munterfinger/drtplanr/actions)
