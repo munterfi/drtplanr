@@ -2,6 +2,7 @@
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 [![R build status](https://github.com/munterfinger/drtplanr/workflows/R-CMD-check/badge.svg)](https://github.com/munterfinger/drtplanr/actions)
+[![pkgdown](https://github.com/munterfinger/drtplanr/workflows/pkgdown/badge.svg)](https://github.com/munterfinger/drtplanr/actions)
 [![Codecov test coverage](https://codecov.io/gh/munterfinger/drtplanr/branch/master/graph/badge.svg)](https://codecov.io/gh/munterfinger/drtplanr?branch=master)
 <!-- badges: end -->
 
@@ -9,7 +10,7 @@ Tool for placing virtual stations in demand-responsive transport systems in vill
 
 The model in the package example optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland.
 
-|![](docs/Jegenstorf_i1000_energy_plot.png)|![](docs/Jegenstorf_i1000_station_map.png)|
+|![](https://raw.githubusercontent.com/munterfinger/drtplanr/master/docs/Jegenstorf_i1000_energy_plot.png)|![](https://raw.githubusercontent.com/munterfinger/drtplanr/master/docs/Jegenstorf_i1000_station_map.png)|
 |---|---|
 
 ## Getting started

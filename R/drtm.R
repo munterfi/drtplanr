@@ -100,7 +100,7 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
   n_seg <- nrow(seg)
   idx <- c(.sample_exclude(1:n_seg, n_vir, idx_const), idx_const)
 
-  ## Create model obj
+  # Create model obj
   model <- list(
     id = model_name,
     i = 0,
@@ -150,23 +150,29 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
 #' )
 #' print(m)
 print.drtm <- function(x, ...) {
-  obj <- x
-  div1 <- "_______________________________________________"
-  div2 <- "==============================================="
-  cat(
+  div <- "========================================"
+  bbox <- x$layer$aoi %>% sf::st_bbox()
+  "%s%s\n%s '%s'\n
+%-39s%-20s%-20s\n%-39s%20.0f%21.2f
+%-39s%-20s%-20s\n%-39s%20.1f%21.1f
+%-39s%-20s%-20s\n%-39s%20.0f%21.0f
+%-39s%-20s%-21s\n%-39s%20.5f%21.5f
+%-39s%20.5f%21.5f\n" %>%
     sprintf(
-      "%s '%s'\n\n%-16s%-16s%-16s\n%-16s%15.0f%16.2f\n%-16s%-16s%-16s\n%-16s%15.1f%16.1f\n%-16s%-16s%-16s\n%-16s%15.0f%16.0f\n%s\n",
-      "Demand-responsive transport model", obj$id,
-      "_______________", "N _____________", "dE ____________",
-      "Iteration:", obj$e[obj$i+1, ]$iteration, diff(m$e$value) %>% mean() %>% round(2),
-      "_______________", "Initial _______", "Current _______",
-      "Energy:", obj$e[1, ]$value %>% round(1), obj$e[obj$i+1, ]$value %>% round(1),
-      "_______________", "Existing ______", "Virtual _______",
-      "Stations:", length(obj$idx_const),  obj$params$n_sta - length(obj$idx_const),
-      div2
-    )
-  )
-  invisible(obj)
+      div, div,
+      "Demand-responsive transport model", x$id,
+      "______________________________________", "i __________________", " dE/di ______________",
+      "Iteration:", x$e[x$i+1, ]$iteration, diff(m$e$value) %>% mean() %>% round(2),
+      "______________________________________", "initial ____________", " current ____________",
+      "Energy:", x$e[1, ]$value %>% round(1), x$e[x$i+1, ]$value %>% round(1),
+      "______________________________________", "existing ___________", " virtual ____________",
+      "Stations:", length(x$idx_const),  x$params$n_sta - length(x$idx_const),
+      "______________________________________", "lng ________________", " lat ________________",
+      "BBox:                             min:", bbox[1],  bbox[2],
+      "                                  max:", bbox[3],  bbox[4]
+    ) %>%
+    cat()
+  invisible(x)
 }
 
 
@@ -283,7 +289,8 @@ drt_route_matrix <- function(orig, dest, graph) {
 }
 
 
-### Sampling
+## Sampling
+
 .sample_exclude <- function(x, size, const) {
   sampling <- TRUE
   while (sampling) {
@@ -299,7 +306,7 @@ drt_route_matrix <- function(orig, dest, graph) {
 }
 
 
-### Energy functions
+## Energy functions
 
 #' Global energy: sum(walk/pop)
 #'
@@ -406,7 +413,6 @@ drt_iterate.drtm <- function(obj, n_iter) {
   obj
 }
 
-
 #' Export drtm
 #'
 #' @param obj drtm, a drtm model of the drtplanr.
@@ -436,7 +442,6 @@ drt_export.drtm <- function(obj, path) {
   save(obj, file = file_path)
 }
 
-
 #' Import drtm
 #'
 #' @param file_name character, path to file.
@@ -463,7 +468,6 @@ drt_import.character <- function(file_name) {
   load(file_name)
   get(ls()[ls() != "file_name"])
 }
-
 
 #' Plot energy curve
 #'
