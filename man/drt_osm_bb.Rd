@@ -18,7 +18,7 @@ Get the box in the osmdata format.
 \examples{
 # Example data
 aoi <-
-  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 
 drt_osm_bb(aoi)
 }

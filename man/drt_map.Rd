@@ -18,7 +18,7 @@ Plot station map
 \examples{
 # Example model
 m <- drt_import(
-  system.file("Jegenstorf_i1000.RData", package="drtplanr")
+  system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 )
 
 drt_map(m)
