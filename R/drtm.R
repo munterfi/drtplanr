@@ -33,67 +33,50 @@
 #'   n_vir = 10, m_seg = 100
 #' )
 #' m
-drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
-                     calc_energy = e_walkDrive_pop) {
+drt_drtm <- function(model_name, aoi, poi, pop, n_vir, m_seg = 100,
+                     calc_energy = e_walk_bike) {
   aoi <- aoi %>% sf::st_transform(4326)
   pop <- pop %>% sf::st_transform(4326)
+  poi <- poi %>% sf::st_transform(4326)
 
   # Get OSM data
-  tmessage("Get data from OSM: Streets 'roa', bus stops and rail stations 'sta'")
+  tmessage("Get data from OSM: Streets 'roa', bus stops and rail stations 'poi'")
   bb <- aoi %>% drt_osm_bb()
   roa <- dodgr::dodgr_streetnet(bbox = bb)
 
-  # Stations
-  sta_rail <-
-    osmdata::opq(bbox = bb) %>%
-    osmdata::add_osm_feature(key = "railway", value = "station") %>%
-    osmdata::osmdata_sf() %>%
-    .$osm_points
-  sta_rail$type = "rail"
-
-  sta_bus <-
-    osmdata::opq(bbox = bb) %>%
-    osmdata::add_osm_feature(key = "highway", value = "bus_stop") %>%
-    osmdata::osmdata_sf() %>%
-    .$osm_points
-  sta_bus$type = "bus"
-
-  sta <- rbind(
-    sta_rail[, c("type", "geometry")],
-    sta_bus[, c("type", "geometry")]
-  )
-
   # Create routing graphs
-  tmessage("Create routing graphs for 'foot' and 'mcar'")
+  tmessage("Create routing graphs for 'foot', 'bicy' and 'mcar'")
+  roa <- roa[!roa$highway %in% c("platform", "proposed", NA), ]
   foot <- dodgr::weight_streetnet(roa, wt_profile = "foot")
+  bicy <- dodgr::weight_streetnet(roa, wt_profile = "bicycle")
   mcar <- dodgr::weight_streetnet(roa, wt_profile = "motorcar")
 
   # Mask layers to AOI
-  tmessage("Mask layers 'roa', 'pop' and 'sta' by 'aoi'")
+  tmessage("Mask layers 'roa', 'pop' and 'poi' by 'aoi'")
   roa <- roa[!roa$highway %in% c("footway", "path", "cycleway", "steps", "track", "service"), ]
   roa <- drt_mask(roa, aoi)
   pop <- drt_mask(pop, aoi)
-  sta <- drt_mask(sta, aoi)
+  poi <- drt_mask(poi, aoi)
 
   # Split roads in segments
   tmessage("Extract possible station locations 'seg' from street segments")
   seg <- drt_roa_seg(roa, m_seg = 100)
 
-  # Route driving times from all segments to the rail stations
-  tmessage("Route driving times of 'seg' to the rail stations")
-  car_time <- drt_route_matrix(
-    orig = sta[sta$type == "rail", ],
+  # Route driving times from all segments to the poi stations
+  tmessage("Route driving times of 'seg' to all 'poi'")
+  poi_time <- drt_route_matrix(
+    orig = poi, #[sta$type == "rail", ], If the POI is a rail station
     dest = seg,
-    graph = mcar
+    graph = bicy
   ) %>%
     .[, .(travelTime = min(travelTime)), by = destIndex]
-  seg$carTime <- car_time$travelTime
-  seg <- seg[!is.na(seg$carTime), ]
+  seg$poiTime <- poi_time$travelTime
+  seg <- seg[!is.na(seg$poiTime), ]
 
   # Existing stations
-  tmessage("Map stations 'sta' to segments 'seg' and set as constant")
+  tmessage("Map stations 'poi' to segments 'seg' and set as constant")
   idx_const <- suppressMessages(
-    sf::st_nearest_feature(sta, seg)
+    sf::st_nearest_feature(poi, seg)
   )
 
   # Random sample
@@ -308,6 +291,32 @@ drt_route_matrix <- function(orig, dest, graph) {
 
 ## Energy functions
 
+#' Global energy: sum(walk*bike/pop)
+#'
+#' @param idx numeric, indices of candidates ins 'seg'.
+#' @param seg sf, road segments point locations.
+#' @param pop sf, population point data.
+#' @param graph dodgr routing graph, graph to route between the points.
+#'
+#' @return
+#' A data.table object containing the energies.
+#'
+#' @export
+#'
+#' @examples
+#' print("tbd.")
+e_walk_bike <- function(idx, seg, pop, graph) {
+  # Route
+  rts <- drt_route_matrix(seg[idx, ], pop, graph = graph)
+  # Get nearest station
+  nn <- rts[, .SD[which.min(travelTime)], by = list(destIndex)]
+  nn$pop <- pop[nn$destIndex, ]$n
+  nn$poiTime <- seg[idx[nn$origIndex], ]$poiTime
+  return(
+    nn[, sum((travelTime*poiTime)/(pop)), by = list(origIndex)]
+  )
+}
+
 #' Global energy: sum(walk/pop)
 #'
 #' @param idx numeric, indices of candidates ins 'seg'.
@@ -364,6 +373,7 @@ e_walkDrive_pop <- function(idx, seg, pop, graph) {
 #'
 #' @param obj, drtm, a drtm model.
 #' @param n_iter numeric, number of iterations.
+#' @param annealing boolean, apply annealing (alpha = 1/(i+1)) (default = TRUE).
 #'
 #' @return
 #' A new drtm with 'n_iter' times more iterations.
@@ -376,11 +386,13 @@ e_walkDrive_pop <- function(idx, seg, pop, graph) {
 #' )
 #'
 #' drt_iterate(m, 10)
-drt_iterate = function(obj, n_iter) UseMethod("drt_iterate")
+drt_iterate = function(obj, n_iter, annealing) UseMethod("drt_iterate")
 
 #' @export
-drt_iterate.drtm <- function(obj, n_iter) {
+drt_iterate.drtm <- function(obj, n_iter, annealing = TRUE) {
   tmessage("Minimize the global energy of the model")
+  # Set up alpha for annealing
+  alpha <- if (annealing) function(x) 1/(x + 1) else function(x) 0
   # Expand energy dt
   obj$e <- rbind(
     obj$e,
@@ -395,10 +407,15 @@ drt_iterate.drtm <- function(obj, n_iter) {
     idx_old <- obj$idx[idx_new_pos]
     idx_new <- .sample_exclude(1:obj$params$n_seg, 1, obj$idx)
     obj$idx[idx_new_pos] <- idx_new
-    e_new <- sum(obj$params$calc_energy(obj$idx, obj$layer$seg, obj$layer$pop, obj$route$foot))
+    e_new <- sum(
+      obj$params$calc_energy(obj$idx, obj$layer$seg, obj$layer$pop, obj$route$foot)
+    )
     cat(sprintf("\r  Iteration: %s, e0: %s, e1: %s \r",
                 i - 1, round(e_old, 1), round(e_new, 1)))
     if (e_old > e_new) {
+      obj$e[i, ]$value <- e_new
+    } else if (rbinom(n = 1, size = 1, prob = alpha(i))) {
+      print("Annealing!")
       obj$e[i, ]$value <- e_new
     } else {
       obj$e[i, ]$value <- e_old
@@ -490,6 +507,10 @@ drt_plot = function(obj) UseMethod("drt_plot")
 #' @export
 drt_plot <- function(obj) {
   tmessage("Print energy plot")
+  if (nrow(obj$e) <= 1) {
+    tmessage("Nothing to plot yet, use 'drt_iterate()' first")
+    return(NULL)
+  }
   p <-
     ggplot2::ggplot(obj$e, ggplot2::aes(x = iteration, y = value)) +
     ggplot2::geom_line() +
@@ -575,7 +596,7 @@ drt_save_graphics.drtm <- function(obj, path) {
   m <- drt_map(obj)
   tmessage("Export graphics")
   mapview::mapshot(m, file = paste0(path, "/%s_i%s_station_map.png" %>% sprintf(obj$id, obj$i)),
-          remove_controls = c("zoomControl", "layersControl", "homeButton"))
+                   remove_controls = c("zoomControl", "layersControl", "homeButton"))
   ggplot2::ggsave(paste0(path, "/%s_i%s_energy_plot.png" %>% sprintf(obj$id, obj$i)), plot = p,
-         height = 125.984, width = 100, units = c("mm"), dpi = 150)
+                  height = 125.984, width = 100, units = c("mm"), dpi = 150)
 }

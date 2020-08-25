@@ -7,10 +7,11 @@
 drt_drtm(
   model_name,
   aoi,
+  poi,
   pop,
   n_vir,
   m_seg = 100,
-  calc_energy = e_walkDrive_pop
+  calc_energy = e_walk_bike
 )
 }
 \arguments{

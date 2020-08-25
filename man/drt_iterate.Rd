@@ -4,12 +4,14 @@
 \alias{drt_iterate}
 \title{Iterate}
 \usage{
-drt_iterate(obj, n_iter)
+drt_iterate(obj, n_iter, annealing)
 }
 \arguments{
 \item{obj, }{drtm, a drtm model.}
 
 \item{n_iter}{numeric, number of iterations.}
+
+\item{annealing}{boolean, apply annealing (alpha = 1/(i+1)) (default = TRUE).}
 }
 \value{
 A new drtm with 'n_iter' times more iterations.
