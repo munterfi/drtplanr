@@ -8,6 +8,7 @@
 #'
 #' @param model_name character, name of the drtm.
 #' @param aoi sf, polygon of the Area of Interest (AOI).
+#' @param poi sf, location of the Points of Interest to approach by bicycle or car.
 #' @param pop sf, centroids of a hectaraster population dataset covering the full extent of the 'aoi' input (column name for population must be 'n').
 #' @param n_vir numeric, number of the virtual stations to place.
 #' @param m_seg numeric, resolution of the road segmentation in meters.
@@ -20,6 +21,9 @@
 #'
 #' @examples
 #' # Example data
+#' poi <-
+#'   sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "poi")
+#'
 #' aoi <-
 #'   sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 #'
@@ -28,13 +32,13 @@
 #'
 #' # Create model
 #' m <- drt_drtm(
-#'   model_name = "Jegenstorf",
-#'   aoi = aoi, pop = pop,
+#'   model_name = "Buelach",
+#'   aoi = aoi, poi = poi, pop = pop,
 #'   n_vir = 10, m_seg = 100
 #' )
 #' m
 drt_drtm <- function(model_name, aoi, poi, pop, n_vir, m_seg = 100,
-                     calc_energy = e_walk_bike) {
+                     calc_energy = e_walk_bike_2pop) {
   aoi <- aoi %>% sf::st_transform(4326)
   pop <- pop %>% sf::st_transform(4326)
   poi <- poi %>% sf::st_transform(4326)
@@ -102,6 +106,7 @@ drt_drtm <- function(model_name, aoi, poi, pop, n_vir, m_seg = 100,
       calc_energy = calc_energy
     ),
     route = list(
+      bicy = bicy,
       foot = foot,
       mcar = mcar
     ),
@@ -129,7 +134,7 @@ drt_drtm <- function(model_name, aoi, poi, pop, n_vir, m_seg = 100,
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+#'   system.file("Buelach_i1000.RData", package = "drtplanr")
 #' )
 #' print(m)
 print.drtm <- function(x, ...) {
@@ -246,7 +251,6 @@ drt_roa_seg.sf <- function(roa, m_seg) {
   seg[, c("id", "geometry")]
 }
 
-
 #' Routing
 #'
 #' @param orig sf, points of the origins.
@@ -291,7 +295,7 @@ drt_route_matrix <- function(orig, dest, graph) {
 
 ## Energy functions
 
-#' Global energy: sum(walk*bike/pop)
+#' Global energy: sum((walk+bike)/2*pop)
 #'
 #' @param idx numeric, indices of candidates ins 'seg'.
 #' @param seg sf, road segments point locations.
@@ -305,15 +309,49 @@ drt_route_matrix <- function(orig, dest, graph) {
 #'
 #' @examples
 #' print("tbd.")
-e_walk_bike <- function(idx, seg, pop, graph) {
+e_walk_bike_2pop = function(idx, seg, pop, graph) {
+
   # Route
   rts <- drt_route_matrix(seg[idx, ], pop, graph = graph)
+
   # Get nearest station
   nn <- rts[, .SD[which.min(travelTime)], by = list(destIndex)]
   nn$pop <- pop[nn$destIndex, ]$n
   nn$poiTime <- seg[idx[nn$origIndex], ]$poiTime
+  nn$travelTime <- nn$travelTime
+
   return(
-    nn[, sum((travelTime*poiTime)/(pop)), by = list(origIndex)]
+    nn[, sum((travelTime+poiTime)/(2*pop)), by = list(origIndex)] # + instead of multiply
+  )
+}
+
+#' Global energy: sum((walk+bike)/2*pop)
+#'
+#' @param idx numeric, indices of candidates ins 'seg'.
+#' @param seg sf, road segments point locations.
+#' @param pop sf, population point data.
+#' @param graph dodgr routing graph, graph to route between the points.
+#'
+#' @return
+#' A data.table object containing the energies.
+#'
+#' @export
+#'
+#' @examples
+#' print("tbd.")
+e_walk_bike_pop = function(idx, seg, pop, graph) {
+
+  # Route
+  rts <- drt_route_matrix(seg[idx, ], pop, graph = graph)
+
+  # Get nearest station
+  nn <- rts[, .SD[which.min(travelTime)], by = list(destIndex)]
+  nn$pop <- pop[nn$destIndex, ]$n
+  nn$poiTime <- seg[idx[nn$origIndex], ]$poiTime
+  nn$travelTime <- nn$travelTime
+
+  return(
+    nn[, sum((travelTime+poiTime)/(pop)), by = list(origIndex)] # + instead of multiply
   )
 }
 
@@ -340,30 +378,6 @@ e_walk_pop <- function(idx, seg, pop, graph) {
   return(nn[, sum(travelTime/pop), by = list(origIndex)])
 }
 
-#' Global energy: sum((walk+drive)/pop)
-#'
-#' @param idx numeric, indices of candidates ins seg.
-#' @param seg sf, road segments point locations.
-#' @param pop sf, population point data.
-#' @param graph dodgr routing graph, graph to route between the points.
-#'
-#' @return
-#' A data.table object containing the energies.
-#'
-#' @export
-#'
-#' @examples
-#' print("tbd.")
-e_walkDrive_pop <- function(idx, seg, pop, graph) {
-  # Route
-  rts <- drt_route_matrix(seg[idx, ], pop, graph = graph)
-  # Get nearest station
-  nn <- rts[, .SD[which.min(travelTime)], by = list(destIndex)]
-  nn$pop <- pop[nn$destIndex, ]$n
-  nn$carTime <- seg[idx[nn$origIndex], ]$carTime
-  return(nn[, sum((travelTime*carTime)/(pop)), by = list(origIndex)])
-}
-
 
 ## Interact with drtm class
 
@@ -382,11 +396,11 @@ e_walkDrive_pop <- function(idx, seg, pop, graph) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+#'   system.file("Buelach_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' drt_iterate(m, 10)
-drt_iterate = function(obj, n_iter, annealing) UseMethod("drt_iterate")
+drt_iterate = function(obj, n_iter, annealing = TRUE) UseMethod("drt_iterate")
 
 #' @export
 drt_iterate.drtm <- function(obj, n_iter, annealing = TRUE) {
@@ -444,7 +458,7 @@ drt_iterate.drtm <- function(obj, n_iter, annealing = TRUE) {
 #' \donttest{
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+#'   system.file("Buelach_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' # Export to temporary dir
@@ -471,7 +485,7 @@ drt_export.drtm <- function(obj, path) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+#'   system.file("Buelach_i1000.RData", package = "drtplanr")
 #' )
 drt_import = function(file_name) UseMethod("drt_import")
 
@@ -491,13 +505,13 @@ drt_import.character <- function(file_name) {
 #' @param obj drtm, a drtm model.
 #'
 #' @return
-#' A ggplot2 plor object, containing the energy curve.
+#' A ggplot2 plot object, containing the energy curve.
 #'
 #' @export
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+#'   system.file("Buelach_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' # Plot
@@ -532,7 +546,7 @@ drt_plot <- function(obj) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+#'   system.file("Buelach_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' drt_map(m)
@@ -583,7 +597,7 @@ drt_map.drtm <- function(obj) {
 #' @examples
 #' #' # Example model
 #' m <- drt_import(
-#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+#'   system.file("Buelach_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' # Save to temp dir
