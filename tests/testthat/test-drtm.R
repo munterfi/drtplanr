@@ -12,7 +12,7 @@ test_that("drtm works", {
 
   # Create model
   m <- drt_drtm(
-    model_name = "Buelach",
+    model_name = "example",
     aoi = aoi, poi = poi, pop = pop,
     n_vir = 21, m_seg = 100
   )

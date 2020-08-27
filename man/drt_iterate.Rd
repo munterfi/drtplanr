@@ -22,7 +22,7 @@ Minimize the gloabal energy of a drtm model.
 \examples{
 # Example model
 m <- drt_import(
-  system.file("Buelach_i1000.RData", package = "drtplanr")
+  system.file("example_i1000.RData", package = "drtplanr")
 )
 
 drt_iterate(m, 10)

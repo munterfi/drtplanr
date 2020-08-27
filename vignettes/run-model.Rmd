@@ -39,26 +39,29 @@ Load the package example data sets:
 * aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
 * pop: Centroids of population and structural business hectare grid statistis (BfS).
 
-```{r eval=FALSE, out.width='100%'}
+```{r eval=TRUE, out.width='100%'}
+poi <-
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "poi")
+
 aoi <- 
-  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 
 pop <- 
-  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "pop")
 
-m <-
-  mapview(aoi, alpha.region = 0, layer.name = "AOI", homebutton = FALSE) +
-  mapview(pop, zcol = "n", alpha = 0, layer.name = "Population", homebutton = FALSE)
-m
+#m <-
+#  mapview(aoi, alpha.region = 0, layer.name = "AOI", homebutton = FALSE) +
+#  mapview(pop, zcol = "n", alpha = 0, layer.name = "Population", homebutton = FALSE)
+#m
 ```
 
 ## Initialize drtm model
 Create a new demand reponsive transport model for the aoi 'Jegenstorf', with 10 randomly initialized virtual on-demand stations.
 ```{r }
 m <- drt_drtm(
-  model_name = "Jegenstorf",
-  aoi = aoi, pop = pop,
-  n_vir = 15, m_seg = 100
+  model_name = "example",
+  aoi = aoi, poi = poi, pop = pop,
+  n_vir = 20, m_seg = 100
 )
 m
 ```
@@ -98,7 +101,7 @@ drt_map(m1)
 The model state is saved in the model. This allows making copies and store different stages of the optimization.
 ```{r include=FALSE, out.width='100%'}
 m2 <- drt_import(
-  system.file("Jegenstorf_i1000.RData", package="drtplanr")
+  system.file("example_i1000.RData", package = "drtplanr")
 )
 ```
 
@@ -127,7 +130,7 @@ The drtplanr has functions to import and export the drtm objects. Furthermore gr
 drt_export(m2, path = getwd())
 
 # Import model
-m2 <- drt_import("Jegenstorf_i1000.RData")
+m2 <- drt_import("example_i1000.RData")
 
 # Save graphics
 drt_save_graphics(m2, path = getwd())

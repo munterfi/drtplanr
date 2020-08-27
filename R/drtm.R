@@ -32,7 +32,7 @@
 #'
 #' # Create model
 #' m <- drt_drtm(
-#'   model_name = "Buelach",
+#'   model_name = "example",
 #'   aoi = aoi, poi = poi, pop = pop,
 #'   n_vir = 10, m_seg = 100
 #' )
@@ -134,7 +134,7 @@ drt_drtm <- function(model_name, aoi, poi, pop, n_vir, m_seg = 100,
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Buelach_i1000.RData", package = "drtplanr")
+#'   system.file("example_i1000.RData", package = "drtplanr")
 #' )
 #' print(m)
 print.drtm <- function(x, ...) {
@@ -396,7 +396,7 @@ e_walk_pop <- function(idx, seg, pop, graph) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Buelach_i1000.RData", package = "drtplanr")
+#'   system.file("example_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' drt_iterate(m, 10)
@@ -458,7 +458,7 @@ drt_iterate.drtm <- function(obj, n_iter, annealing = TRUE) {
 #' \donttest{
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Buelach_i1000.RData", package = "drtplanr")
+#'   system.file("example_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' # Export to temporary dir
@@ -485,7 +485,7 @@ drt_export.drtm <- function(obj, path) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Buelach_i1000.RData", package = "drtplanr")
+#'   system.file("example_i1000.RData", package = "drtplanr")
 #' )
 drt_import = function(file_name) UseMethod("drt_import")
 
@@ -511,7 +511,7 @@ drt_import.character <- function(file_name) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Buelach_i1000.RData", package = "drtplanr")
+#'   system.file("example_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' # Plot
@@ -546,7 +546,7 @@ drt_plot <- function(obj) {
 #' @examples
 #' # Example model
 #' m <- drt_import(
-#'   system.file("Buelach_i1000.RData", package = "drtplanr")
+#'   system.file("example_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' drt_map(m)
@@ -597,7 +597,7 @@ drt_map.drtm <- function(obj) {
 #' @examples
 #' #' # Example model
 #' m <- drt_import(
-#'   system.file("Buelach_i1000.RData", package = "drtplanr")
+#'   system.file("example_i1000.RData", package = "drtplanr")
 #' )
 #'
 #' # Save to temp dir

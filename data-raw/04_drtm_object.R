@@ -8,7 +8,7 @@
 # Usage         :./04_drtm_object.R
 # Notes         :Load from package examples using:
 #                m <- drt_import(
-#                  system.file("Jegenstorf_i0.RData", package="drtplanr")
+#                  system.file("example.RData", package="drtplanr")
 #                )
 # R             :4.0.0
 # =============================================================================
@@ -17,17 +17,20 @@ library(drtplanr)
 set.seed(123)
 
 # Example data
+poi <-
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "poi")
+
 aoi <-
-  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 
 pop <-
-  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "pop")
 
 # Create model
 m <- drt_drtm(
-  model_name = "Jegenstorf",
-  aoi = aoi, pop = pop,
-  n_vir = 15, m_seg = 100
+  model_name = "example",
+  aoi = aoi, poi = poi, pop = pop,
+  n_vir = 20, m_seg = 100
 )
 m
 

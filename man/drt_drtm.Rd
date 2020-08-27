@@ -52,7 +52,7 @@ pop <-
 
 # Create model
 m <- drt_drtm(
-  model_name = "Buelach",
+  model_name = "example",
   aoi = aoi, poi = poi, pop = pop,
   n_vir = 10, m_seg = 100
 )
