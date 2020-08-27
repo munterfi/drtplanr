@@ -1,5 +1,8 @@
 test_that("drtm works", {
   # Example data
+  poi <-
+    sf::st_read(system.file("example.gpkg", package = "drtplanr"),
+                layer = "poi", quiet = TRUE)
   aoi <-
     sf::st_read(system.file("example.gpkg", package = "drtplanr"),
                 layer = "aoi", quiet = TRUE)
@@ -9,9 +12,9 @@ test_that("drtm works", {
 
   # Create model
   m <- drt_drtm(
-    model_name = "Jegenstorf",
-    aoi = aoi, pop = pop,
-    n_vir = 10, m_seg = 100
+    model_name = "Buelach",
+    aoi = aoi, poi = poi, pop = pop,
+    n_vir = 21, m_seg = 100
   )
 
   # Test drtm class
