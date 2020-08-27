@@ -1,12 +1,15 @@
 Package: drtplanr
 Title: Experimental demand-responsive transport planner
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: 
-    person(given = "Merlin",
-           family = "Unterfinger",
-           role = c("aut", "cre"),
-           email = "info@munterfinger.ch")
-Description: Tool for placing virtual stations in demand-responsive transport systems in villages by defining and minimizing a global energy (\code{drtplanr}, name is inspired by \code{stplanr} <https://github.com/ropensci/stplanr>). The station locations are randomly initialized in the street network and iteratively optimized based on the reachable population in combination with walking and driving times.
+    person("Merlin", "Unterfinger", role = c("aut", "cre"),
+    email = "info@munterfinger.ch", comment = c(ORCID = "0000-0003-2020-2366"))
+Description: Tool for placing virtual stations in demand-responsive transport
+    systems in villages by defining and minimizing a global energy (\code{drtplanr},
+    name is inspired by \code{stplanr} <https://github.com/ropensci/stplanr>).
+    The station locations are randomly initialized in the street network and
+    iteratively optimized based on the reachable population in combination with
+    walking and driving times.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -23,7 +26,7 @@ Imports:
     sf (>= 0.9.3),
     units (>= 0.6.6)
 Suggests: 
-    hereR (>= 0.3.3),
+    hereR (>= 0.4.1),
     knitr (>= 1.28),
     rmarkdown (>= 2.1),
     testthat (>= 2.3.2),
