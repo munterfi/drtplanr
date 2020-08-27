@@ -429,7 +429,7 @@ drt_iterate.drtm <- function(obj, n_iter, annealing = TRUE) {
     if (e_old > e_new) {
       obj$e[i, ]$value <- e_new
     } else if (rbinom(n = 1, size = 1, prob = alpha(i))) {
-      print("Annealing!")
+      #print("Annealing!")
       obj$e[i, ]$value <- e_new
     } else {
       obj$e[i, ]$value <- e_old

@@ -4,7 +4,7 @@
 \alias{drt_iterate}
 \title{Iterate}
 \usage{
-drt_iterate(obj, n_iter, annealing)
+drt_iterate(obj, n_iter, annealing = TRUE)
 }
 \arguments{
 \item{obj, }{drtm, a drtm model.}
@@ -22,7 +22,7 @@ Minimize the gloabal energy of a drtm model.
 \examples{
 # Example model
 m <- drt_import(
-  system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+  system.file("Buelach_i1000.RData", package = "drtplanr")
 )
 
 drt_iterate(m, 10)

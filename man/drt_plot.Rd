@@ -10,7 +10,7 @@ drt_plot(obj)
 \item{obj}{drtm, a drtm model.}
 }
 \value{
-A ggplot2 plor object, containing the energy curve.
+A ggplot2 plot object, containing the energy curve.
 }
 \description{
 Plot energy curve
@@ -18,7 +18,7 @@ Plot energy curve
 \examples{
 # Example model
 m <- drt_import(
-  system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+  system.file("Buelach_i1000.RData", package = "drtplanr")
 )
 
 # Plot
