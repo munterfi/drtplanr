@@ -20,7 +20,7 @@ Save graphics of model
 \examples{
 #' # Example model
 m <- drt_import(
-  system.file("example_i1000.RData", package = "drtplanr")
+  system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 )
 
 # Save to temp dir

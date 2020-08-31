@@ -9,7 +9,7 @@
 #' @param model_name character, name of the drtm.
 #' @param aoi sf, polygon of the Area of Interest (AOI).
 #' @param pop sf, centroids of a hectaraster population dataset covering the full extent of the 'aoi' input (column name for population must be 'n').
-#' @param n_vir numeric, number of the virtual stations to place.
+#' @param n_sta numeric, number of the stations to place.
 #' @param m_seg numeric, resolution of the road segmentation in meters.
 #' @param energy_function function, energy calculation function.
 #'
@@ -30,10 +30,10 @@
 #' m <- drt_drtm(
 #'   model_name = "Jegenstorf",
 #'   aoi = aoi, pop = pop,
-#'   n_vir = 10, m_seg = 100
+#'   n_sta = 10, m_seg = 100
 #' )
 #' m
-drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
+drt_drtm <- function(model_name, aoi, pop, n_sta, m_seg = 100,
                      energy_function = calculate_energy) {
   aoi <- aoi %>% sf::st_transform(4326)
   pop <- pop %>% sf::st_transform(4326)
@@ -62,7 +62,7 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
 
   # Random sample
   n_seg <- nrow(seg)
-  idx <- sample(1:n_seg, n_vir, replace = FALSE) # c(.sample_exclude(1:n_seg, n_vir)) #, idx_const), idx_const)
+  idx <- sample(1:n_seg, n_sta, replace = FALSE) # c(.sample_exclude(1:n_seg, n_sta)) #, idx_const), idx_const)
 
   # Create model obj
   model <- list(
@@ -76,8 +76,8 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
       value = energy_function(idx, seg, pop, walk, bicy)
     ),
     params = list(
-      n_sta = n_vir, #+ length(idx_const),
-      n_vir = n_vir,
+      #n_tot = n_sta, + length(idx_const),
+      n_sta = n_sta,
       n_seg = nrow(seg),
       m_seg = m_seg,
       energy_function = energy_function
@@ -127,11 +127,11 @@ print.drtm <- function(x, ...) {
       div, div,
       "Demand-responsive transport model", x$id,
       "______________________________________", "i __________________", " dE/di ______________",
-      "Iteration:", x$e[x$i+1, ]$iteration, diff(m$e$value) %>% mean() %>% round(2),
+      "Iteration:", x$e[x$i+1, ]$iteration, diff(x$e$value) %>% mean() %>% round(2),
       "______________________________________", "initial ____________", " current ____________",
       "Energy:", x$e[1, ]$value %>% round(1), x$e[x$i+1, ]$value %>% round(1),
-      "______________________________________", "existing ___________", " virtual ____________",
-      "Stations:", length(x$idx_const),  x$params$n_sta - length(x$idx_const),
+      "______________________________________", "constant ___________", " placed _____________",
+      "Stations:", length(x$idx_const),  x$params$n_sta,
       "______________________________________", "lng ________________", " lat ________________",
       "BBox:                             min:", bbox[1],  bbox[2],
       "                                  max:", bbox[3],  bbox[4]
@@ -468,6 +468,7 @@ Station connectivity, cycling time  : %.2f (mean) [min]
 #' Reset the model state
 #'
 #' @param obj, drtm, a drtm model.
+#' @param n_sta, numeric, number of stations (default = NULL).
 #' @param shuffle, boolean, shuffle the initial station positions?
 #'
 #' @return
@@ -482,14 +483,18 @@ Station connectivity, cycling time  : %.2f (mean) [min]
 #' )
 #'
 #' drt_reset(m)
-drt_reset = function(obj, shuffle = FALSE) UseMethod("drt_reset")
+drt_reset = function(obj, n_sta, shuffle = FALSE) UseMethod("drt_reset")
 
 #' @export
-drt_reset.drtm = function(obj, shuffle = FALSE) {
+drt_reset.drtm = function(obj, n_sta = NULL, shuffle = FALSE) {
   obj$i <- 0
+  if (!is.null(n_sta)) {
+    obj$params$n_sta <- n_sta
+    shuffle = TRUE
+  }
   if (shuffle) {
     obj$idx_start <- sample(
-      1:nrow(obj$layer$seg), m$params$n_vir, replace = FALSE
+      1:obj$params$n_seg, obj$params$n_sta, replace = FALSE
     )
   }
   obj$idx <- obj$idx_start

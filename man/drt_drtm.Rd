@@ -7,11 +7,10 @@
 drt_drtm(
   model_name,
   aoi,
-  poi,
   pop,
-  n_vir,
+  n_sta,
   m_seg = 100,
-  calc_energy = e_walk_bike_2pop
+  energy_function = calculate_energy
 )
 }
 \arguments{
@@ -19,15 +18,13 @@ drt_drtm(
 
 \item{aoi}{sf, polygon of the Area of Interest (AOI).}
 
-\item{poi}{sf, location of the Points of Interest to approach by bicycle or car.}
-
 \item{pop}{sf, centroids of a hectaraster population dataset covering the full extent of the 'aoi' input (column name for population must be 'n').}
 
-\item{n_vir}{numeric, number of the virtual stations to place.}
+\item{n_sta}{numeric, number of the stations to place.}
 
 \item{m_seg}{numeric, resolution of the road segmentation in meters.}
 
-\item{calc_energy}{function, energy calculation function.}
+\item{energy_function}{function, energy calculation function.}
 }
 \value{
 A demand responsive transport model of class 'drtm'.
@@ -41,9 +38,6 @@ OSM data a routing graph for walking and driving is created.
 }
 \examples{
 # Example data
-poi <-
-  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "poi")
-
 aoi <-
   sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 
@@ -52,9 +46,9 @@ pop <-
 
 # Create model
 m <- drt_drtm(
-  model_name = "example",
-  aoi = aoi, poi = poi, pop = pop,
-  n_vir = 10, m_seg = 100
+  model_name = "Jegenstorf",
+  aoi = aoi, pop = pop,
+  n_sta = 10, m_seg = 100
 )
 m
 }
