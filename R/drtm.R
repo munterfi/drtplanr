@@ -11,7 +11,7 @@
 #' @param pop sf, centroids of a hectaraster population dataset covering the full extent of the 'aoi' input (column name for population must be 'n').
 #' @param n_vir numeric, number of the virtual stations to place.
 #' @param m_seg numeric, resolution of the road segmentation in meters.
-#' @param calc_energy function, energy calculation function.
+#' @param energy_function function, energy calculation function.
 #'
 #' @return
 #' A demand responsive transport model of class 'drtm'.
@@ -34,7 +34,7 @@
 #' )
 #' m
 drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
-                     calc_energy = calc_energy) {
+                     energy_function = calculate_energy) {
   aoi <- aoi %>% sf::st_transform(4326)
   pop <- pop %>% sf::st_transform(4326)
 
@@ -73,14 +73,14 @@ drt_drtm <- function(model_name, aoi, pop, n_vir, m_seg = 100,
     idx = idx,
     e = data.table::data.table(
       iteration = 0,
-      value = calc_energy(idx, seg, pop, walk, bicy)
+      value = energy_function(idx, seg, pop, walk, bicy)
     ),
     params = list(
       n_sta = n_vir, #+ length(idx_const),
       n_vir = n_vir,
       n_seg = nrow(seg),
       m_seg = m_seg,
-      calc_energy = calc_energy
+      energy_function = energy_function
     ),
     route = list(
       bicy = bicy,
@@ -288,7 +288,7 @@ drt_route_matrix <- function(orig, dest, graph) {
 #'
 #' @examples
 #' print("tbd.")
-calc_energy = function(idx, seg, pop, walk, bicy) {
+calculate_energy <- function(idx, seg, pop, walk, bicy) {
 
   # rts_walk: Station to Pop
   rts_walk <- drt_route_matrix(seg[idx, ], pop, graph = walk)
@@ -370,7 +370,7 @@ drt_iterate.drtm <- function(obj, n_iter, annealing = TRUE) {
     idx_new <- .sample_exclude(1:obj$params$n_seg, 1, obj$idx)
     obj$idx[idx_new_pos] <- idx_new
     e_new <- sum(
-      obj$params$calc_energy(obj$idx, obj$layer$seg, obj$layer$pop, obj$route$walk, obj$route$bicy)
+      obj$params$energy_function(obj$idx, obj$layer$seg, obj$layer$pop, obj$route$walk, obj$route$bicy)
     )
     cat(sprintf("\r  Iteration: %s, e0: %s, e1: %s \r",
                 i - 1, round(e_old, 1), round(e_new, 1)))
@@ -389,6 +389,116 @@ drt_iterate.drtm <- function(obj, n_iter, annealing = TRUE) {
                      obj$e[obj$i + 1, ]$value %>% round(1),
                      obj$e[obj$i + n_iter + 1, ]$value %>% round(1)))
   obj$i <- obj$i + n_iter
+  obj
+}
+
+#' Reset the model state
+#'
+#' @param obj, drtm, a drtm model.
+#' @param shuffle, boolean, shuffle the initial station positions?
+#'
+#' @return
+#' The energy function of the model.
+#'
+#' @export
+#'
+#' @examples
+#' # Example model
+#' m <- drt_import(
+#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+#' )
+#'
+#' drt_energy(m)
+drt_summary = function(obj) UseMethod("drt_summary")
+
+#' @export
+drt_summary.drtm = function(obj, walking_limit = 10) {
+
+  div <- "========================================"
+
+  # Walking times from population to stations
+  rts_walk <- drt_route_matrix(
+    obj$layer$seg[obj$idx, ], obj$layer$pop, graph = obj$route$walk
+  )
+  colnames(rts_walk) <- c("station", "raster", "walking_time")
+  nn <- rts_walk[, .SD[which.min(walking_time)], by = list(raster)]
+  nn$population <- pop[nn$raster, ]$n
+  nn$walking_time <- nn$walking_time / 60
+
+  # Population
+  n_pop <- sum(obj$layer$pop$n)
+
+  # Mean walking time to station
+  mean_walking_time <- sum((nn$walking_time * nn$population)) / sum(nn$population)
+
+  # Number of persons above and below limit
+  limit_walking_time <- nn[, list(n = sum(population)), by = list(walking_time > walking_limit)]
+
+  # Bicycling times from station to station
+  rts_bicy <- drt_route_matrix(
+    obj$layer$seg[obj$idx, ], obj$layer$seg[obj$idx, ], graph = obj$route$bicy
+  )
+  colnames(rts_bicy) <- c("station_1", "station_2", "bicycle_time")
+  rts_bicy[is.na(rts_bicy$bicycle_time), bicycle_time := max(rts_bicy$bicycle_time, na.rm = TRUE)]
+  rts_bicy[, bicycle_time := bicycle_time / 60]
+  rts_bicy <- rts_bicy[station_1!= station_2, ]
+
+  # Near stations
+  mean_bicycle_time <- rts_bicy[, list(
+    mn = min(bicycle_time), me = mean(bicycle_time), mx = max(bicycle_time))]
+
+  # Population
+  "%s%s\nSummary of model '%s'
+________________________________________________________________________________
+Model energy                        : %.1f
+Population (residents and worker)   : %s
+Station accessibility, walking time : %.2f (mean) [min/pop]
+                                      %.1f (t > %s min)   | %.1f (t < %s min) [%s]
+Station connectivity, cycling time  : %.2f (mean) [min]
+                                      %.2f (min.)         | %.2f (max.) [min]
+  " %>% sprintf(div, div, obj$id,
+                obj$e[obj$i+1, ]$value,
+                n_pop,
+                mean_walking_time,
+                limit_walking_time$n[1]/n_pop*100, walking_limit, limit_walking_time$n[2]/n_pop*100, walking_limit, "%",
+                mean_bicycle_time$mn, mean_bicycle_time$me, mean_bicycle_time$mx) %>%
+    cat()
+}
+
+#' Reset the model state
+#'
+#' @param obj, drtm, a drtm model.
+#' @param shuffle, boolean, shuffle the initial station positions?
+#'
+#' @return
+#' The energy function of the model.
+#'
+#' @export
+#'
+#' @examples
+#' # Example model
+#' m <- drt_import(
+#'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
+#' )
+#'
+#' drt_reset(m)
+drt_reset = function(obj, shuffle = FALSE) UseMethod("drt_reset")
+
+#' @export
+drt_reset.drtm = function(obj, shuffle = FALSE) {
+  obj$i <- 0
+  if (shuffle) {
+    obj$idx_start <- sample(
+      1:nrow(obj$layer$seg), m$params$n_vir, replace = FALSE
+    )
+  }
+  obj$idx <- obj$idx_start
+  obj$e = data.table::data.table(
+    iteration = 0,
+    value = obj$params$energy_function(
+      obj$idx, obj$layer$seg, obj$layer$pop, obj$route$walk, obj$route$bicy
+    )
+  )
   obj
 }
 
@@ -412,7 +522,7 @@ drt_energy = function(x) UseMethod("drt_energy")
 
 #' @export
 drt_energy.drtm = function(x) {
-  x$params$calc_energy
+  x$params$energy_function
 }
 
 #' Set energy function
@@ -431,14 +541,14 @@ drt_energy.drtm = function(x) {
 #'   system.file("Jegenstorf_i1000.RData", package = "drtplanr")
 #' )
 #'
-#' drt_energy(m) <- calc_energy
+#' drt_energy(m) <- calculate_energy
 `drt_energy<-` = function(x, value) UseMethod("drt_energy<-")
 
 #' @export
 `drt_energy<-.drtm` = function(x, value) {
-  if (!is.function(energy))
+  if (!is.function(value))
     stop("The argument 'value' must be a function.")
-  x$params$calc_energy <- value
+  x$params$energy_function <- value
   x
 }
 
