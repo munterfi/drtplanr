@@ -274,7 +274,7 @@ drt_route_matrix <- function(orig, dest, graph) {
   )
   nn <- data.table::data.table(expand.grid(1:nrow(m), 1:ncol(m)))
   colnames(nn) <- c("origIndex", "destIndex")
-  nn$travelTime <- as.numeric(m[cbind(nn$origIndex, nn$destIndex)])
+  nn$travelTime <- as.numeric(m[cbind(nn$origIndex, nn$destIndex)]) / 60
   nn[order(nn$origIndex, nn$destIndex), ]
 }
 
@@ -339,7 +339,7 @@ calculate_energy <- function(idx, seg, pop, walk, bicy) {
   # rts_walk: Station to Pop
   rts_walk <- drt_route_matrix(seg[idx, ], pop, graph = walk)
   colnames(rts_walk) <- c("station", "raster", "walking_time")
-  # rts_walk: Station to station
+  # rts_bicy: Station to station
   rts_bicy <- drt_route_matrix(seg[idx, ], seg[idx, ], graph = bicy)
   colnames(rts_bicy) <- c("station_1", "station_2", "bicycle_time")
 
