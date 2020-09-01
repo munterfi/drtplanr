@@ -298,7 +298,28 @@ drt_route_matrix <- function(orig, dest, graph) {
 
 ## Energy functions
 
-#' Global energy:
+#' Global energy of the model
+#'
+#' Energy function that calculates the global energy of the model by summing
+#' product of the attractivities of each origin and destination station pair
+#' weighted by their connectivity (bicycle time between the stations).
+#'
+#' Notation:
+#' \itemize{
+#'  \item{Ps_i: }{Sum of population in catchment area of station i.}
+#'  \item{WTs_i: }{Sum of the walking time of population in catchment area to station i.}
+#'  \item{BTs_i_s_j: }{Bicycle time from station i to station j.}
+#'  \item{LEs_i = Ps_i * WTs_i: }{Local energy of station i.}
+#' }
+#'
+#' Terms:
+#' \itemize{
+#'  \item{s1 = }{sum(Ps_i * LEs_i)}
+#'  \item{s2 = }{sum(Ps_i * BTs_i_s_j * Ps_j)}
+#'  \item{s3 = }{sum(Ps_j * LEs_j)}
+#' }
+#'
+#' Global energy: e_g = sum(s1 + s2 + s3)
 #'
 #' @param idx numeric, indices of candidates ins 'seg'.
 #' @param seg sf, road segments point locations.
@@ -307,7 +328,7 @@ drt_route_matrix <- function(orig, dest, graph) {
 #' @param bicy dodgr routing graph, graph to route bicycle times between the points.
 #'
 #' @return
-#' A data.table object containing the energies.
+#' A numeric scalar with the global energy.
 #'
 #' @export
 #'
@@ -322,7 +343,7 @@ calculate_energy <- function(idx, seg, pop, walk, bicy) {
   rts_bicy <- drt_route_matrix(seg[idx, ], seg[idx, ], graph = bicy)
   colnames(rts_bicy) <- c("station_1", "station_2", "bicycle_time")
 
-  # Local energy
+  # Ps_i and LEs_i: Local energy
   nn <- rts_walk[, .SD[which.min(walking_time)], by = list(raster)]
   nn$population <- pop[nn$raster, ]$n
   local_params <- nn[, list(population = sum(population), e_local = sum(population * walking_time)), by = list(station)]
