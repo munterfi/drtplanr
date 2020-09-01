@@ -8,6 +8,7 @@
 #'
 #' @param model_name character, name of the drtm.
 #' @param aoi sf, polygon of the Area of Interest (AOI).
+#' @param aoi sf, locations of the Points of Interest (POI), fixed stations (default = NULL).
 #' @param pop sf, centroids of a hectaraster population dataset covering the full extent of the 'aoi' input (column name for population must be 'n').
 #' @param n_sta numeric, number of the stations to place.
 #' @param m_seg numeric, resolution of the road segmentation in meters.
@@ -33,8 +34,19 @@
 #'   n_sta = 10, m_seg = 100
 #' )
 #' m
-drt_drtm <- function(model_name, aoi, pop, n_sta, m_seg = 100,
+drt_drtm <- function(model_name, aoi, pop, n_sta, poi = NULL, m_seg = 100,
                      energy_function = calculate_energy) {
+  # Input checks
+  if (any(aoi %>% sf::st_geometry() %>% sf::st_geometry_type() != "POLYGON"))
+    stop("Geometry type of 'aoi' must be 'POLYGON'.")
+  if (any(pop %>% sf::st_geometry() %>% sf::st_geometry_type() != "POINT"))
+    stop("Geometry type of 'pop' must be 'POINT'.")
+  if (!is.null(poi)) {
+    if (any(poi %>% sf::st_geometry() %>% sf::st_geometry_type() != "POINT"))
+      stop("Geometry type of 'poi' must be 'POINT'.")
+  }
+
+  # Transform CRS
   aoi <- aoi %>% sf::st_transform(4326)
   pop <- pop %>% sf::st_transform(4326)
 
@@ -44,39 +56,52 @@ drt_drtm <- function(model_name, aoi, pop, n_sta, m_seg = 100,
   roa <- dodgr::dodgr_streetnet(bbox = bb)
 
   # Create routing graphs
-  tmessage("Create routing graphs for 'foot', 'bicy' and 'mcar'")
+  tmessage("Create routing graphs for 'walk', 'bicy' and 'mcar'")
   roa <- roa[!roa$highway %in% c("platform", "proposed", NA), ]
   walk <- dodgr::weight_streetnet(roa, wt_profile = "foot")
   bicy <- dodgr::weight_streetnet(roa, wt_profile = "bicycle")
   mcar <- dodgr::weight_streetnet(roa, wt_profile = "motorcar")
 
   # Mask layers to AOI
-  tmessage("Mask layers 'roa', 'pop' and 'poi' by 'aoi'")
+  tmessage("Mask layers 'roa', 'pop' by 'aoi'")
   roa <- roa[!roa$highway %in% c("footway", "path", "cycleway", "steps", "track", "service"), ]
   roa <- drt_mask(roa, aoi)
   pop <- drt_mask(pop, aoi)
 
   # Split roads in segments
   tmessage("Extract possible station locations 'seg' from street segments")
-  seg <- drt_roa_seg(roa, m_seg = 100)
+  seg <- drt_roa_seg(roa, m_seg = m_seg)
+
+  # Existing stations
+  if (!is.null(poi)) {
+    tmessage("Process 'poi' layer, map to segments 'seg' and set as constant")
+    poi <- poi %>% sf::st_transform(4326)
+    poi <- drt_mask(poi, aoi)
+    idx_const <- suppressMessages(
+      sf::st_nearest_feature(poi, seg)
+    )
+  } else {
+    idx_const <- numeric()
+  }
 
   # Random sample
   n_seg <- nrow(seg)
-  idx <- sample(1:n_seg, n_sta, replace = FALSE) # c(.sample_exclude(1:n_seg, n_sta)) #, idx_const), idx_const)
+  #idx <- sample(1:n_seg, n_sta, replace = FALSE)
+  idx <- c(.sample_exclude(1:n_seg, n_sta, idx_const), idx_const)
 
   # Create model obj
   model <- list(
     id = model_name,
     i = 0,
     idx_start = idx,
-    #idx_const = idx_const,
+    idx_const = idx_const,
     idx = idx,
     e = data.table::data.table(
       iteration = 0,
       value = energy_function(idx, seg, pop, walk, bicy)
     ),
     params = list(
-      #n_tot = n_sta, + length(idx_const),
+      n_tot = n_sta + length(idx_const),
       n_sta = n_sta,
       n_seg = nrow(seg),
       m_seg = m_seg,
@@ -130,7 +155,7 @@ print.drtm <- function(x, ...) {
       "Iteration:", x$e[x$i+1, ]$iteration, diff(x$e$value) %>% mean() %>% round(2),
       "______________________________________", "initial ____________", " current ____________",
       "Energy:", x$e[1, ]$value %>% round(1), x$e[x$i+1, ]$value %>% round(1),
-      "______________________________________", "constant ___________", " placed _____________",
+      "______________________________________", "constant ___________", " variable ___________",
       "Stations:", length(x$idx_const),  x$params$n_sta,
       "______________________________________", "lng ________________", " lat ________________",
       "BBox:                             min:", bbox[1],  bbox[2],
@@ -353,6 +378,10 @@ drt_iterate = function(obj, n_iter, annealing = TRUE) UseMethod("drt_iterate")
 #' @export
 drt_iterate.drtm <- function(obj, n_iter, annealing = TRUE) {
   tmessage("Minimize the global energy of the model")
+  if (obj$params$n_sta == 0) {
+    tmessage("No free stations available to place, set 'n_sta' at least at 1 in 'drt_drtm(...)'.")
+    return(NULL)
+  }
   # Set up alpha for annealing
   alpha <- if (annealing) function(x) 1/(x + 1) else function(x) 0
   # Expand energy dt
@@ -452,16 +481,16 @@ drt_summary.drtm = function(obj, walking_limit = 10) {
 ________________________________________________________________________________
 Model energy                        : %.1f
 Population (residents and worker)   : %s
-Station accessibility, walking time : %.2f (mean) [min/pop]
+Station accessibility, walking time : %.2f (avg.) [min/pop]
                                       %.1f (t > %s min)   | %.1f (t < %s min) [%s]
-Station connectivity, cycling time  : %.2f (mean) [min]
+Station connectivity, cycling time  : %.2f (avg.) [min]
                                       %.2f (min.)         | %.2f (max.) [min]
   " %>% sprintf(div, div, obj$id,
                 obj$e[obj$i+1, ]$value,
                 n_pop,
                 mean_walking_time,
                 limit_walking_time$n[1]/n_pop*100, walking_limit, limit_walking_time$n[2]/n_pop*100, walking_limit, "%",
-                mean_bicycle_time$mn, mean_bicycle_time$me, mean_bicycle_time$mx) %>%
+                mean_bicycle_time$me, mean_bicycle_time$mn, mean_bicycle_time$mx) %>%
     cat()
 }
 
@@ -668,13 +697,18 @@ drt_map = function(obj) UseMethod("drt_map")
 #' @export
 drt_map.drtm <- function(obj) {
   tmessage("Print station map")
-  #const <- obj$layer$seg[obj$idx_const, ]
-  #const$station <- "Existing"; const$size <- 6
-  start <- obj$layer$seg[obj$idx_start, ]
+  start <- obj$layer$seg[obj$idx_start[!obj$idx_start %in% obj$idx_const], ]
   start$station <- "Initial"; start$size <- 3
-  optim <- obj$layer$seg[obj$idx, ]
+  optim <- obj$layer$seg[obj$idx[!obj$idx %in% obj$idx_const], ]
   optim$station <- "Optimized"; optim$size <- 6
   stations <- rbind(start, optim)
+  cols <- c("blue", "red")
+  if (obj$param$n_tot - obj$param$n_sta > 0) {
+    const <- obj$layer$seg[obj$idx_const, ]
+    const$station <- "Constant"; const$size <- 6
+    stations <- rbind(stations, const)
+    cols <- c("black", "blue", "red")
+  }
   m <-
     mapview::mapview(
       obj$layer$aoi, alpha = 0.25, alpha.region = 0, color = "black", lwd = 2,
@@ -691,7 +725,7 @@ drt_map.drtm <- function(obj) {
     ) +
     mapview::mapview(
       stations, alpha = 0, zcol = "station",
-      cex = stations$size, col.regions = c("blue", "red"),
+      cex = stations$size, col.regions = cols,
       layer.name = "Stations", homebutton = FALSE
     )
   m
