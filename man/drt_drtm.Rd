@@ -9,6 +9,7 @@ drt_drtm(
   aoi,
   pop,
   n_sta,
+  poi = NULL,
   m_seg = 100,
   energy_function = calculate_energy
 )
@@ -16,7 +17,7 @@ drt_drtm(
 \arguments{
 \item{model_name}{character, name of the drtm.}
 
-\item{aoi}{sf, polygon of the Area of Interest (AOI).}
+\item{aoi}{sf, locations of the Points of Interest (POI), fixed stations (default = NULL).}
 
 \item{pop}{sf, centroids of a hectaraster population dataset covering the full extent of the 'aoi' input (column name for population must be 'n').}
 
