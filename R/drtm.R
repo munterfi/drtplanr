@@ -533,7 +533,7 @@ Station connectivity, cycling time  : %.2f (avg.) [min]
 #' )
 #'
 #' drt_reset(m)
-drt_reset = function(obj, n_sta, shuffle = FALSE) UseMethod("drt_reset")
+drt_reset = function(obj, n_sta = NULL, shuffle = FALSE) UseMethod("drt_reset")
 
 #' @export
 drt_reset.drtm = function(obj, n_sta = NULL, shuffle = FALSE) {

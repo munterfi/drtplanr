@@ -4,7 +4,7 @@
 \alias{drt_reset}
 \title{Reset the model state}
 \usage{
-drt_reset(obj, n_sta, shuffle = FALSE)
+drt_reset(obj, n_sta = NULL, shuffle = FALSE)
 }
 \arguments{
 \item{obj, }{drtm, a drtm model.}
