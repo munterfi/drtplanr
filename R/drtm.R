@@ -473,7 +473,6 @@ drt_summary.drtm = function(obj, walking_limit = 10) {
   colnames(rts_walk) <- c("station", "raster", "walking_time")
   nn <- rts_walk[, .SD[which.min(walking_time)], by = list(raster)]
   nn$population <- pop[nn$raster, ]$n
-  nn$walking_time <- nn$walking_time / 60
 
   # Population
   n_pop <- sum(obj$layer$pop$n)
@@ -490,7 +489,6 @@ drt_summary.drtm = function(obj, walking_limit = 10) {
   )
   colnames(rts_bicy) <- c("station_1", "station_2", "bicycle_time")
   rts_bicy[is.na(rts_bicy$bicycle_time), bicycle_time := max(rts_bicy$bicycle_time, na.rm = TRUE)]
-  rts_bicy[, bicycle_time := bicycle_time / 60]
   rts_bicy <- rts_bicy[station_1!= station_2, ]
 
   # Near stations
