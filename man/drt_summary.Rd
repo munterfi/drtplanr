@@ -4,7 +4,7 @@
 \alias{drt_summary}
 \title{Reset the model state}
 \usage{
-drt_summary(obj)
+drt_summary(obj, walking_limit = 10)
 }
 \arguments{
 \item{obj, }{drtm, a drtm model.}

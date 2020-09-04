@@ -459,7 +459,7 @@ drt_iterate.drtm <- function(obj, n_iter, annealing = TRUE) {
 #' )
 #'
 #' drt_energy(m)
-drt_summary = function(obj) UseMethod("drt_summary")
+drt_summary = function(obj, walking_limit = 10) UseMethod("drt_summary")
 
 #' @export
 drt_summary.drtm = function(obj, walking_limit = 10) {
@@ -717,9 +717,9 @@ drt_map = function(obj) UseMethod("drt_map")
 drt_map.drtm <- function(obj) {
   tmessage("Print station map")
   start <- obj$layer$seg[obj$idx_start[!obj$idx_start %in% obj$idx_const], ]
-  start$station <- "Initial"; start$size <- 3
+  if (nrow(start)) {start$station <- "Initial"; start$size <- 3}
   optim <- obj$layer$seg[obj$idx[!obj$idx %in% obj$idx_const], ]
-  optim$station <- "Optimized"; optim$size <- 6
+  if (nrow(start)) {optim$station <- "Optimized"; optim$size <- 6}
   stations <- rbind(start, optim)
   cols <- c("blue", "red")
   if (obj$param$n_tot - obj$param$n_sta > 0) {
