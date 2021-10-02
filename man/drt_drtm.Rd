@@ -39,10 +39,10 @@ OSM data a routing graph for walking and driving is created.
 \examples{
 # Example data
 aoi <-
-  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 
 pop <-
-  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "pop")
 
 # Create model
 m <- drt_drtm(

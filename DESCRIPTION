@@ -6,6 +6,8 @@ Authors@R:
            family = "Unterfinger",
            role = c("aut", "cre"),
            email = "info@munterfinger.ch")
+URL: https://munterfi.github.io/drtplanr/, https://github.com/munterfi/drtplanr/
+BugReports: https://github.com/munterfi/drtplanr/issues/
 Description: Tool for placing virtual stations in demand-responsive transport systems in villages by defining and minimizing a global energy (\code{drtplanr}, name is inspired by \code{stplanr} <https://github.com/ropensci/stplanr>). The station locations are randomly initialized in the street network and iteratively optimized based on the reachable population in combination with walking and driving times.
 License: GPL-3
 Encoding: UTF-8
@@ -29,7 +31,5 @@ Suggests:
     testthat (>= 2.3.2),
     covr (>= 3.5.0)
 VignetteBuilder: knitr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.2
 RdMacros: lifecycle
-URL: https://github.com/munterfinger/drtplanr
-BugReports: https://github.com/munterfinger/drtplanr/issues

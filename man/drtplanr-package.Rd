@@ -11,8 +11,9 @@ Tool for placing virtual stations in demand-responsive transport systems in vill
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/munterfinger/drtplanr}
-  \item Report bugs at \url{https://github.com/munterfinger/drtplanr/issues}
+  \item \url{https://munterfi.github.io/drtplanr/}
+  \item \url{https://github.com/munterfi/drtplanr/}
+  \item Report bugs at \url{https://github.com/munterfi/drtplanr/issues/}
 }
 
 }

@@ -20,10 +20,10 @@ Mask a spatial layer by a polygon
 \examples{
 # Example data
 aoi <-
-  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "aoi")
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "aoi")
 
 pop <-
-  sf::st_read(system.file("example.gpkg", package="drtplanr"), layer = "pop")
+  sf::st_read(system.file("example.gpkg", package = "drtplanr"), layer = "pop")
 
 drt_mask(pop, aoi)
 }
