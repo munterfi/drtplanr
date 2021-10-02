@@ -1,6 +1,7 @@
 # Example data sets inlcuded in drtplanr
 
 ## How to
+
 To recreate the package example data run the following command from the
 data-raw directory root:
 ``` bash
@@ -10,7 +11,8 @@ data-raw directory root:
 **Note:** A HERE API key is required and the following R packages are required:
 `data.table`, `sf` and `hereR`.
 
-## Load the example is R:
+## Load the example is R
+
 To read the example data from the package use:
 ``` r
 aoi <-
@@ -23,5 +25,6 @@ pop <-
 ```
 
 ## References
-* [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs 
+
+* [hereR](https://github.com/munterfi/hereR): R interface to the HERE REST APIs 
 * [bfs](https://www.bfs.admin.ch/): Population and structural business statistics for Switzerland

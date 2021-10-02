@@ -27,12 +27,14 @@ Tool for placing virtual stations in demand-responsive transport systems in vill
 The model in the package example optimizes the positions of virtual stations in an assumed on-demand shuttle service for the community of Jegenstorf in Bern, Switzerland. 
 
 ## Setup
+
 ```{r }
 library(drtplanr)
 set.seed(123)
 ```
 
 ## Example data sets
+
 Load the package example data sets:
 
 * aoi: Area of Interest - 3 min driving time isochrone around the station of Jegenstorf, Bern.
@@ -52,6 +54,7 @@ m
 ```
 
 ## Initialize drtm model
+
 Create a new demand reponsive transport model for the aoi 'Jegenstorf', with 10 randomly initialized virtual on-demand stations.
 ```{r }
 m <- drt_drtm(
@@ -63,6 +66,7 @@ m
 ```
 
 ## Minimze the energy of the model
+
 Iterate the model 100 times, where every iteration consists of:
 
 1. Relocate a virtual station randomly on the road segments.
@@ -84,16 +88,19 @@ m1
 
 ## Plotting
 ### Energy curve
+
 ```{r out.width='100%'}
 drt_plot(m1)
 ```
 
 ### Station map
+
 ```{r out.width='100%'}
 drt_map(m1)
 ```
 
 ## Iterate again
+
 The model state is saved in the model. This allows making copies and store different stages of the optimization.
 ```{r include=FALSE, out.width='100%'}
 m2 <- drt_import(
@@ -111,6 +118,7 @@ m2
 ```
 
 ## Visualize results
+
 ```{r out.width='100%'}
 drt_plot(m2)
 ```
@@ -120,6 +128,7 @@ drt_map(m2)
 ```
 
 ## Export and import
+
 The drtplanr has functions to import and export the drtm objects. Furthermore graphics of the energy plot and the station map can be exported as images (.png).
 ```{r eval=FALSE, out.width='100%'}
 # Export model
@@ -133,7 +142,8 @@ drt_save_graphics(m2, path = getwd())
 ```
 
 ## References
-* [hereR](https://github.com/munterfinger/hereR): R interface to the HERE REST APIs 
+
+* [hereR](https://github.com/munterfi/hereR): R interface to the HERE REST APIs 
 * [BfS](https://www.bfs.admin.ch/): Population data for Switzerland
 * [OSM](https://www.openstreetmap.org/): Street network data for routing purposes.
 

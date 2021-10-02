@@ -8,7 +8,7 @@ navbar:
   components:
     github:
       icon: fa-github fa-lg
-      href: https://github.com/munterfinger/drtplanr
+      href: https://github.com/munterfi/drtplanr
     twitter:
       icon: fa-twitter fa-lg
       href: https://twitter.com/munterfi1
